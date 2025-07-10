@@ -1,5 +1,6 @@
 import { Component } from 'react';
 import { type Book } from '../api/api';
+import Spinner from './Spinner';
 
 type Props = {
   loading: boolean;
@@ -18,7 +19,11 @@ class Results extends Component<Props> {
   }
 
   renderLoading() {
-    return <div className="results_content loading-spinner">Loading</div>;
+    return (
+      <div className="results_content loading-spinner">
+        <Spinner />
+      </div>
+    );
   }
 
   renderError() {
