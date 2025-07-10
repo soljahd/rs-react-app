@@ -12,7 +12,7 @@ class Results extends Component<Props> {
   renderContainer(children: React.ReactNode) {
     return (
       <div className="results flex flex-col justify-center gap-4">
-        <h1 className="results_header w-full text-3xl">Results</h1>
+        <h1 className="results_header w-full text-center text-3xl">Results</h1>
         {children}
       </div>
     );
@@ -21,7 +21,7 @@ class Results extends Component<Props> {
   renderLoading() {
     return (
       <div className="results_content loading-spinner">
-        <Spinner />
+        <Spinner size="xl" />
       </div>
     );
   }
@@ -37,6 +37,10 @@ class Results extends Component<Props> {
   renderBooks() {
     return (
       <div className="results_content flex w-full flex-wrap gap-2">
+        <div className="results_item flex w-full rounded-lg p-2 text-xl">
+          <h3 className="results_item-title flex w-1/2 font-medium">Title</h3>
+          <p className="results_item-description flex w-1/2 text-gray-600">Author</p>
+        </div>
         {this.props.books.map((book) => (
           <div className="results_item flex w-full rounded-lg border border-gray-300 p-2 text-xl" key={book.key}>
             <h3 className="results_item-title flex w-1/2 font-medium">{book.title}</h3>

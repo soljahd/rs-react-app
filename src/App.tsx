@@ -2,6 +2,7 @@ import { Component } from 'react';
 import { searchBooks, type Book } from './api/api';
 import Search from './components/Search';
 import Results from './components/Results';
+import Button from './components/Button';
 
 type State = {
   isLoading: boolean;
@@ -54,15 +55,17 @@ class App extends Component<unknown, State> {
     }
     return (
       <div className="app mx-auto flex min-h-screen max-w-5xl min-w-xs flex-col justify-start gap-8 p-4 pt-16">
-        <Search initialValue={initialQuery} onSearch={this.handleSearch} />
-        <Results loading={isLoading} error={error} books={results} />
-        <button
-          type="button"
-          className="max-w-32 min-w-24 cursor-pointer rounded-lg bg-blue-700 px-4 py-2 font-medium text-white hover:bg-blue-800 active:bg-blue-700 disabled:cursor-auto disabled:bg-gray-500"
-          onClick={this.throwError}
-        >
-          Throw Error
-        </button>
+        <div className="top-controls">
+          <Search loading={isLoading} initialValue={initialQuery} onSearch={this.handleSearch} />
+        </div>
+        <div className="results min-h-96">
+          <Results loading={isLoading} error={error} books={results} />
+        </div>
+        <div className="error-button flex justify-end">
+          <Button color="error" onClick={this.throwError}>
+            Throw Error
+          </Button>
+        </div>
       </div>
     );
   }
