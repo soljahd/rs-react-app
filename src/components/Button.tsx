@@ -42,7 +42,13 @@ class Button extends Component<Props> {
     const { children, onClick, type = 'button', disabled = false, loading = false } = this.props;
 
     return (
-      <button type={type} onClick={onClick} disabled={disabled || loading} className={this.getButtonClasses()}>
+      <button
+        aria-busy={loading}
+        type={type}
+        onClick={onClick}
+        disabled={disabled || loading}
+        className={this.getButtonClasses()}
+      >
         {loading ? <Spinner /> : children}
       </button>
     );
