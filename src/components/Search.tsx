@@ -1,5 +1,8 @@
-import { Component, type ChangeEvent, type FormEvent } from 'react';
+import { Component } from 'react';
+
 import Button from './Button';
+
+import type { ChangeEvent, FormEvent } from 'react';
 
 type Props = {
   loading: boolean;

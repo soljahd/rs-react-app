@@ -1,9 +1,10 @@
 import { Component } from 'react';
 import Spinner from './Spinner';
+import type { ReactNode, MouseEvent } from 'react';
 
 type Props = {
-  children: React.ReactNode;
-  onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
+  children: ReactNode;
+  onClick?: (event: MouseEvent<HTMLButtonElement>) => void;
   type?: 'button' | 'submit' | 'reset';
   disabled?: boolean;
   loading?: boolean;

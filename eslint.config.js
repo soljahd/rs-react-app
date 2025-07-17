@@ -7,6 +7,8 @@ import reactHooks from 'eslint-plugin-react-hooks';
 import reactRefresh from 'eslint-plugin-react-refresh';
 import tseslint from 'typescript-eslint';
 import { globalIgnores } from 'eslint/config';
+import { createTypeScriptImportResolver } from 'eslint-import-resolver-typescript';
+import { importX } from 'eslint-plugin-import-x';
 
 export default tseslint.config([
   globalIgnores(['dist']),
@@ -16,9 +18,17 @@ export default tseslint.config([
       react: {
         version: 'detect',
       },
+      'import-x/resolver-next': [
+        createTypeScriptImportResolver({
+          alwaysTryTypes: true,
+          bun: true,
+          project: './tsconfig.json',
+        }),
+      ],
     },
     files: ['**/*.{ts,tsx}'],
     extends: [
+      importX.flatConfigs.recommended,
       js.configs.recommended,
       tseslint.configs.strictTypeChecked,
       react.configs.flat.recommended,
@@ -43,6 +53,19 @@ export default tseslint.config([
       '@typescript-eslint/consistent-type-assertions': ['error', { assertionStyle: 'never' }],
       '@typescript-eslint/consistent-type-imports': 'error',
       '@typescript-eslint/consistent-type-definitions': ['error', 'type'],
+    },
+    rules: {
+      'import-x/consistent-type-specifier-style': 'error',
+      'import-x/order': [
+        'error',
+        {
+          groups: ['builtin', 'external', 'internal', ['parent', 'sibling'], 'index', 'object', 'type'],
+          alphabetize: {
+            order: 'asc',
+            caseInsensitive: true,
+          },
+        },
+      ],
     },
   },
   prettier,

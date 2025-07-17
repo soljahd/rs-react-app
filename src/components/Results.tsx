@@ -1,6 +1,7 @@
 import { Component } from 'react';
-import { type Book } from '../api/api';
 import Spinner from './Spinner';
+import type { Book } from '../api/api';
+import type { ReactNode } from 'react';
 
 type Props = {
   loading: boolean;
@@ -9,7 +10,7 @@ type Props = {
 };
 
 class Results extends Component<Props> {
-  renderContainer(children: React.ReactNode) {
+  renderContainer(children: ReactNode) {
     return (
       <div className="results flex flex-col justify-center gap-4">
         <h1 className="results_header w-full text-center text-3xl">Results</h1>
