@@ -1,9 +1,10 @@
 import { Component } from 'react';
 import Spinner from './Spinner';
+import type { ReactNode, MouseEvent } from 'react';
 
 type Props = {
-  children: React.ReactNode;
-  onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
+  children: ReactNode;
+  onClick?: (event: MouseEvent<HTMLButtonElement>) => void;
   type?: 'button' | 'submit' | 'reset';
   disabled?: boolean;
   loading?: boolean;
@@ -41,7 +42,13 @@ class Button extends Component<Props> {
     const { children, onClick, type = 'button', disabled = false, loading = false } = this.props;
 
     return (
-      <button type={type} onClick={onClick} disabled={disabled || loading} className={this.getButtonClasses()}>
+      <button
+        aria-busy={loading}
+        type={type}
+        onClick={onClick}
+        disabled={disabled || loading}
+        className={this.getButtonClasses()}
+      >
         {loading ? <Spinner /> : children}
       </button>
     );

@@ -20,7 +20,7 @@ class Spinner extends Component<Props> {
   render() {
     const sizeClasses = this.getSizeClasses();
     return (
-      <div className="flex items-center justify-center">
+      <div className="flex items-center justify-center" role="status" aria-label="Loading">
         <div className={`animate-spin rounded-full border-blue-500 border-t-transparent ${sizeClasses}`} />
       </div>
     );

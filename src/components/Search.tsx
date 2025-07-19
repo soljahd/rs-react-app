@@ -1,5 +1,6 @@
-import { Component, type ChangeEvent, type FormEvent } from 'react';
+import { Component } from 'react';
 import Button from './Button';
+import type { ChangeEvent, FormEvent } from 'react';
 
 type Props = {
   loading: boolean;
@@ -20,22 +21,31 @@ class Search extends Component<Props, State> {
     this.setState({ searchQuery: event.target.value });
   };
 
-  handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+  submitSearchRequest = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     await this.props.onSearch(this.state.searchQuery.trim());
   };
 
+  handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    this.submitSearchRequest(event).catch(() => {});
+  };
+
   render() {
+    const { loading } = this.props;
+    const { searchQuery } = this.state;
     return (
-      <form onSubmit={(event) => void this.handleSubmit(event)} className="search flex gap-4">
+      <form onSubmit={this.handleSubmit} className="search flex gap-4" role="search">
         <input
-          aria-label="search"
+          aria-label="Search"
+          aria-busy={loading}
+          disabled={loading}
           type="text"
           className="w-full rounded-lg border border-gray-300 bg-gray-50 p-2 focus:border-blue-700 focus:outline-none"
-          value={this.state.searchQuery}
+          value={searchQuery}
+          placeholder="Enter book title or author..."
           onChange={this.handleChange}
         />
-        <Button type="submit" loading={this.props.loading}>
+        <Button type="submit" loading={loading}>
           Search
         </Button>
       </form>

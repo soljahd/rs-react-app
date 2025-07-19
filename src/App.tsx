@@ -1,8 +1,7 @@
 import { Component } from 'react';
-import { searchBooks, type Book } from './api/api';
-import Search from './components/Search';
-import Results from './components/Results';
-import Button from './components/Button';
+import { searchBooks } from './api/api';
+import { Button, Results, Search } from './components';
+import type { Book } from './api/api';
 
 type State = {
   isLoading: boolean;

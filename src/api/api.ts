@@ -26,7 +26,7 @@ export type Book = {
   ratings_count?: number;
 };
 
-type SearchBooksResponse = {
+export type SearchBooksResponse = {
   docs: Book[];
   numFound: number;
   offset?: number;

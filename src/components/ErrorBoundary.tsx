@@ -1,11 +1,12 @@
-import { Component, type ErrorInfo } from 'react';
+import { Component } from 'react';
 import Button from './Button';
+import type { PropsWithChildren } from 'react';
 
 type State = {
   hasError: boolean;
 };
 
-class ErrorBoundary extends Component<{ children: React.ReactNode }, State> {
+class ErrorBoundary extends Component<PropsWithChildren, State> {
   state = {
     hasError: false,
   };
@@ -14,11 +15,9 @@ class ErrorBoundary extends Component<{ children: React.ReactNode }, State> {
     return { hasError: true };
   }
 
-  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    if (!this.state.hasError) {
-      console.error('Error caught:', error, errorInfo);
-    }
-  }
+  resetError = () => {
+    this.setState({ hasError: false });
+  };
 
   render() {
     return this.state.hasError ? (
@@ -27,12 +26,7 @@ class ErrorBoundary extends Component<{ children: React.ReactNode }, State> {
           <h2 className="text-2xl font-bold text-gray-800">Error</h2>
           <p className="text-gray-600">This is a test error from the error button</p>
           <p className="text-gray-500">Please refresh the page</p>
-          <Button
-            onClick={() => {
-              window.location.reload();
-            }}
-            color="error"
-          >
+          <Button onClick={this.resetError} color="error">
             Refresh Page
           </Button>
         </div>

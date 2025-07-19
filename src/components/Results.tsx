@@ -1,6 +1,7 @@
 import { Component } from 'react';
-import { type Book } from '../api/api';
 import Spinner from './Spinner';
+import type { Book } from '../api/api';
+import type { ReactNode } from 'react';
 
 type Props = {
   loading: boolean;
@@ -9,9 +10,9 @@ type Props = {
 };
 
 class Results extends Component<Props> {
-  renderContainer(children: React.ReactNode) {
+  renderContainer(children: ReactNode) {
     return (
-      <div className="results flex flex-col justify-center gap-4">
+      <div role="region" className="results flex flex-col justify-center gap-4">
         <h1 className="results_header w-full text-center text-3xl">Results</h1>
         {children}
       </div>
@@ -19,25 +20,29 @@ class Results extends Component<Props> {
   }
 
   renderLoading() {
+    return <Spinner size="xl" />;
+  }
+
+  renderError() {
     return (
-      <div className="results_content loading-spinner">
-        <Spinner size="xl" />
+      <div role="alert" className="results_content results_error text-red-500">
+        {this.props.error}
       </div>
     );
   }
 
-  renderError() {
-    return <div className="results_content results_error text-red-500">{this.props.error}</div>;
-  }
-
   renderNoResults() {
-    return <p className="results_content text-gray-500">No books found. Try another search.</p>;
+    return (
+      <p role="status" className="results_content text-gray-500">
+        No books found. Try another search.
+      </p>
+    );
   }
 
   renderBooks() {
     return (
-      <div className="results_content flex w-full flex-wrap gap-2">
-        <div className="results_item flex w-full rounded-lg bg-gray-100 p-2 text-xl">
+      <div role="list" aria-label="List of books" className="results_content flex w-full flex-wrap gap-2">
+        <div role="presentation" className="results_item flex w-full rounded-lg bg-gray-100 p-2 text-xl">
           <h3 className="results_item-title flex w-1/2 font-medium">Title</h3>
           <h3 className="results_item-description flex w-1/2 font-medium">Description</h3>
         </div>
@@ -49,6 +54,8 @@ class Results extends Component<Props> {
   renderBook(book: Book) {
     return (
       <div
+        role="article"
+        aria-label="Books"
         className="results_item flex w-full rounded-lg border border-gray-200 p-2 text-xl hover:bg-gray-50"
         key={book.key}
       >
