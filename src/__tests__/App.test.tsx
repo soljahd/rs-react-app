@@ -2,7 +2,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, beforeEach, it, expect, vi } from 'vitest';
 import * as api from '../api/api';
-import App from '../App';
+import App, { ITEMS_PER_PAGE } from '../App';
 import ErrorBoundary from '../components/ErrorBoundary';
 
 const mockBooks = {
@@ -24,7 +24,7 @@ describe('App Component', () => {
     render(<App />);
 
     await waitFor(() => {
-      expect(searchSpy).toHaveBeenCalledWith('');
+      expect(searchSpy).toHaveBeenCalledWith('', 0, ITEMS_PER_PAGE);
     });
   });
 
@@ -35,7 +35,7 @@ describe('App Component', () => {
     render(<App />);
 
     await waitFor(() => {
-      expect(searchSpy).toHaveBeenCalledWith('harry potter');
+      expect(searchSpy).toHaveBeenCalledWith('harry potter', 0, ITEMS_PER_PAGE);
     });
   });
 
@@ -68,7 +68,7 @@ describe('App Component', () => {
     await userEvent.click(searchButton);
 
     await waitFor(() => {
-      expect(searchSpy).toHaveBeenLastCalledWith('lord of the rings');
+      expect(searchSpy).toHaveBeenLastCalledWith('lord of the rings', 0, ITEMS_PER_PAGE);
     });
   });
 
@@ -132,6 +132,6 @@ describe('App Component', () => {
       expect(localStorage.getItem('searchQuery')).toBe('gatsby');
     });
 
-    expect(searchSpy).toHaveBeenLastCalledWith('gatsby');
+    expect(searchSpy).toHaveBeenLastCalledWith('gatsby', 0, ITEMS_PER_PAGE);
   });
 });

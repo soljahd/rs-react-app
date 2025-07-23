@@ -1,3 +1,5 @@
+import { useState, useEffect } from 'react';
+import Pagination from './Pagination';
 import Spinner from './Spinner';
 import type { Book } from '../api/api';
 import type { ReactNode } from 'react';
@@ -6,11 +8,14 @@ type ResultsProps = {
   loading: boolean;
   error: string | null;
   books: Book[];
+  totalBooks: number;
+  booksPerPage: number;
+  onPageChange?: (page: number) => void;
 };
 
 function ResultsContainer({ children }: { children: ReactNode }) {
   return (
-    <div role="region" className="results flex flex-col justify-center gap-4">
+    <div role="region" className="results flex flex-grow flex-col justify-between gap-4">
       <h1 className="results_header w-full text-center text-3xl">Results</h1>
       {children}
     </div>
@@ -78,11 +83,31 @@ function BookItem({ book }: { book: Book }) {
   );
 }
 
-function Results({ loading, error, books }: ResultsProps) {
+function Results({ loading, error, books, totalBooks, booksPerPage, onPageChange }: ResultsProps) {
+  const [currentPage, setCurrentPage] = useState(1);
+  const totalPages = Math.ceil(totalBooks / booksPerPage);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    if (onPageChange) {
+      onPageChange(page);
+    }
+  };
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [totalBooks]);
+
   if (loading) {
     return (
       <ResultsContainer>
         <LoadingState />
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+          siblingCount={1}
+        />
       </ResultsContainer>
     );
   }
@@ -106,6 +131,7 @@ function Results({ loading, error, books }: ResultsProps) {
   return (
     <ResultsContainer>
       <BooksList books={books} />
+      <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} siblingCount={1} />
     </ResultsContainer>
   );
 }

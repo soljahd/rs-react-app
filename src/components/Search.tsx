@@ -5,7 +5,7 @@ import type { ChangeEvent, FormEvent } from 'react';
 type SearchProps = {
   loading: boolean;
   initialValue: string;
-  onSearch: (query: string) => Promise<void>;
+  onSearch: (query: string) => void;
 };
 
 function Search({ loading, initialValue, onSearch }: SearchProps) {
@@ -15,13 +15,9 @@ function Search({ loading, initialValue, onSearch }: SearchProps) {
     setSearchQuery(event.target.value);
   };
 
-  const submitSearchRequest = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    await onSearch(searchQuery.trim());
-  };
-
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-    submitSearchRequest(event).catch(() => {});
+    event.preventDefault();
+    onSearch(searchQuery.trim());
   };
 
   return (
@@ -36,7 +32,7 @@ function Search({ loading, initialValue, onSearch }: SearchProps) {
         placeholder="Enter book title or author..."
         onChange={handleChange}
       />
-      <Button type="submit" loading={loading}>
+      <Button type="submit" loading={loading} className="min-w-24">
         Search
       </Button>
     </form>
