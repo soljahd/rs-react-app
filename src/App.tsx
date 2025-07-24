@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { searchBooks } from './api/api';
 import { Button, Results, Search } from './components';
+import { useLocalStorageQuery } from './hooks/useLocalStorageQuery';
 import type { Book } from './api/api';
 
 export const ITEMS_PER_PAGE = 8;
@@ -12,9 +13,7 @@ function App() {
   const [shouldThrowError, setShouldThrowError] = useState(false);
   const [totalBooks, setTotalBooks] = useState(0);
 
-  const initialQuery = localStorage.getItem('searchQuery') || '';
-
-  const [query, setQuery] = useState(initialQuery);
+  const [query, setQuery] = useLocalStorageQuery('searchQuery');
 
   const searchData = async (query: string, page: number = 1, limit: number = ITEMS_PER_PAGE) => {
     const offset = (page - 1) * limit;
@@ -23,7 +22,6 @@ function App() {
 
     try {
       const response = await searchBooks(query, offset, limit);
-      setQuery(query);
       setResults(response.docs);
       setTotalBooks(response.numFound);
     } catch (error) {
@@ -36,11 +34,11 @@ function App() {
   };
 
   useEffect(() => {
-    void searchData(initialQuery);
-  }, [initialQuery]);
+    void searchData(query);
+  }, []);
 
   const handleSearchRequest = async (query: string) => {
-    localStorage.setItem('searchQuery', query);
+    setQuery(query);
     await searchData(query);
   };
 
@@ -66,7 +64,7 @@ function App() {
   return (
     <div className="app mx-auto flex min-h-screen max-w-5xl min-w-xs flex-col justify-start gap-8 p-4 pt-16">
       <div className="top-controls">
-        <Search loading={isLoading} initialValue={initialQuery} onSearch={handleSearch} />
+        <Search loading={isLoading} initialValue={query} onSearch={handleSearch} />
       </div>
       <div className="results flex min-h-[800px]">
         <Results
