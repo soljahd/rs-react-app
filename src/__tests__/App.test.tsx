@@ -1,5 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { MemoryRouter } from 'react-router-dom';
 import { describe, beforeEach, it, expect, vi } from 'vitest';
 import * as api from '../api/api';
 import App, { ITEMS_PER_PAGE } from '../App';
@@ -19,9 +20,17 @@ describe('App Component', () => {
     localStorage.clear();
   });
 
+  const renderApp = () => {
+    return render(
+      <MemoryRouter>
+        <App />
+      </MemoryRouter>,
+    );
+  };
+
   it('makes initial API call on component mount', async () => {
     const searchSpy = vi.spyOn(api, 'searchBooks').mockResolvedValue(mockBooks);
-    render(<App />);
+    renderApp();
 
     await waitFor(() => {
       expect(searchSpy).toHaveBeenCalledWith('', 0, ITEMS_PER_PAGE);
@@ -32,7 +41,7 @@ describe('App Component', () => {
     localStorage.setItem('searchQuery', 'harry potter');
     const searchSpy = vi.spyOn(api, 'searchBooks').mockResolvedValue(mockBooks);
 
-    render(<App />);
+    renderApp();
 
     await waitFor(() => {
       expect(searchSpy).toHaveBeenCalledWith('harry potter', 0, ITEMS_PER_PAGE);
@@ -48,7 +57,7 @@ describe('App Component', () => {
       );
     });
 
-    render(<App />);
+    renderApp();
     expect(screen.getByRole('textbox')).toBeDisabled();
 
     await waitFor(() => {
@@ -59,7 +68,7 @@ describe('App Component', () => {
   it('calls API with correct parameters when user searches', async () => {
     const searchSpy = vi.spyOn(api, 'searchBooks').mockResolvedValue(mockBooks);
 
-    render(<App />);
+    renderApp();
     const input = screen.getByRole('textbox', { name: 'Search' });
     const searchButton = await screen.findByRole('button', { name: 'Search' });
 
@@ -74,7 +83,7 @@ describe('App Component', () => {
 
   it('renders book results on successful API response', async () => {
     vi.spyOn(api, 'searchBooks').mockResolvedValue(mockBooks);
-    render(<App />);
+    renderApp();
 
     await waitFor(() => {
       expect(screen.getByText('Book One')).toBeInTheDocument();
@@ -84,7 +93,7 @@ describe('App Component', () => {
 
   it('shows error message when API fails', async () => {
     vi.spyOn(api, 'searchBooks').mockRejectedValue(new Error('API failed'));
-    render(<App />);
+    renderApp();
 
     await waitFor(() => {
       expect(screen.getByText(/API failed/i)).toBeInTheDocument();
@@ -93,7 +102,7 @@ describe('App Component', () => {
 
   it('updates state with new results after successful search', async () => {
     vi.spyOn(api, 'searchBooks').mockResolvedValue(mockBooks);
-    render(<App />);
+    renderApp();
 
     await waitFor(() => {
       expect(screen.getByText('Book One')).toBeInTheDocument();
@@ -105,9 +114,11 @@ describe('App Component', () => {
     vi.spyOn(api, 'searchBooks').mockResolvedValue(mockBooks);
 
     render(
-      <ErrorBoundary>
-        <App />
-      </ErrorBoundary>,
+      <MemoryRouter>
+        <ErrorBoundary>
+          <App />
+        </ErrorBoundary>
+      </MemoryRouter>,
     );
 
     const throwButton = await screen.findByRole('button', { name: /throw error/i });
@@ -119,7 +130,7 @@ describe('App Component', () => {
   it('handles search from user input and updates localStorage, state, and results', async () => {
     const searchSpy = vi.spyOn(api, 'searchBooks').mockResolvedValue(mockBooks);
 
-    render(<App />);
+    renderApp();
 
     const input = screen.getByRole('textbox', { name: 'Search' });
     const searchButton = await screen.findByRole('button', { name: 'Search' });

@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import Pagination from './Pagination';
 import Spinner from './Spinner';
 import type { Book } from '../api/api';
@@ -10,6 +9,7 @@ type ResultsProps = {
   books: Book[];
   totalBooks: number;
   booksPerPage: number;
+  currentPage: number;
   onPageChange?: (page: number) => void;
 };
 
@@ -83,20 +83,14 @@ function BookItem({ book }: { book: Book }) {
   );
 }
 
-function Results({ loading, error, books, totalBooks, booksPerPage, onPageChange }: ResultsProps) {
-  const [currentPage, setCurrentPage] = useState(1);
+function Results({ loading, error, books, totalBooks, booksPerPage, currentPage, onPageChange }: ResultsProps) {
   const totalPages = Math.ceil(totalBooks / booksPerPage);
 
   const handlePageChange = (page: number) => {
-    setCurrentPage(page);
     if (onPageChange) {
       onPageChange(page);
     }
   };
-
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [totalBooks]);
 
   if (loading) {
     return (

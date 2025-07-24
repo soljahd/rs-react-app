@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { searchBooks } from './api/api';
 import { Button, Results, Search } from './components';
 import { useLocalStorageQuery } from './hooks/useLocalStorageQuery';
@@ -12,10 +13,19 @@ function App() {
   const [results, setResults] = useState<Book[]>([]);
   const [shouldThrowError, setShouldThrowError] = useState(false);
   const [totalBooks, setTotalBooks] = useState(0);
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const [query, setQuery] = useLocalStorageQuery('searchQuery');
 
-  const searchData = async (query: string, page: number = 1, limit: number = ITEMS_PER_PAGE) => {
+  const currentPage = parseInt(searchParams.get('page') || '1', 10);
+
+  useEffect(() => {
+    if (!searchParams.has('page')) {
+      setSearchParams({ page: '1' });
+    }
+  }, [searchParams, setSearchParams]);
+
+  const searchData = async (query: string, page: number = currentPage, limit: number = ITEMS_PER_PAGE) => {
     const offset = (page - 1) * limit;
     setIsLoading(true);
     setError(null);
@@ -39,7 +49,8 @@ function App() {
 
   const handleSearchRequest = async (query: string) => {
     setQuery(query);
-    await searchData(query);
+    setSearchParams({ page: '1' });
+    await searchData(query, 1);
   };
 
   const handleSearch = (query: string) => {
@@ -47,6 +58,7 @@ function App() {
   };
 
   const handleRequestOnPageChange = async (page: number) => {
+    setSearchParams({ page: page.toString() });
     await searchData(query, page);
   };
 
@@ -61,6 +73,7 @@ function App() {
   if (shouldThrowError) {
     throw new Error('This is a test error from the error button!');
   }
+
   return (
     <div className="app mx-auto flex min-h-screen max-w-5xl min-w-xs flex-col justify-start gap-8 p-4 pt-16">
       <div className="top-controls">
@@ -73,6 +86,7 @@ function App() {
           books={results}
           totalBooks={totalBooks}
           booksPerPage={ITEMS_PER_PAGE}
+          currentPage={currentPage}
           onPageChange={handlePageChange}
         />
       </div>

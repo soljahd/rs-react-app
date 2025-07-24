@@ -16,7 +16,7 @@ function Pagination({ currentPage, totalPages, onPageChange, siblingCount = 1 }:
     return Array.from({ length }, (_, idx) => idx + start);
   };
 
-  const generatePaginationItems = (): (number | '...')[] => {
+  function generatePaginationItems(): (number | '...')[] {
     const totalPageNumbers = siblingCount + 5;
 
     if (totalPages <= totalPageNumbers) {
@@ -27,7 +27,7 @@ function Pagination({ currentPage, totalPages, onPageChange, siblingCount = 1 }:
     const rightSiblingIndex = Math.min(currentPage + siblingCount, totalPages);
 
     const shouldShowLeftDots = leftSiblingIndex > 2;
-    const shouldShowRightDots = rightSiblingIndex < totalPages - 2;
+    const shouldShowRightDots = rightSiblingIndex < totalPages - 1;
 
     if (!shouldShowLeftDots && shouldShowRightDots) {
       const leftItemCount = 3 + 2 * siblingCount;
@@ -40,12 +40,8 @@ function Pagination({ currentPage, totalPages, onPageChange, siblingCount = 1 }:
       return [1, '...', ...rightRange];
     }
 
-    if (shouldShowLeftDots && shouldShowRightDots) {
-      return [1, '...', ...range(leftSiblingIndex, rightSiblingIndex), '...', totalPages];
-    }
-
-    return [];
-  };
+    return [1, '...', ...range(leftSiblingIndex, rightSiblingIndex), '...', totalPages];
+  }
 
   const handlePageClick = (page: number | '...') => (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -103,6 +99,7 @@ function Pagination({ currentPage, totalPages, onPageChange, siblingCount = 1 }:
         size="sm"
         className="min-w-8"
         aria-label="Next page"
+        aria-role="Next page"
       >
         {'>'}
       </Button>
