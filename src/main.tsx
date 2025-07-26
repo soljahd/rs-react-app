@@ -2,7 +2,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import './index.css';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import { AppLayout, About, Home, ErrorBoundary, NotFoundPage } from './components';
+import { AppLayout, About, Home, ErrorBoundary, NotFoundPage, ResultsDetails } from './components';
 
 const router = createBrowserRouter([
   {
@@ -14,8 +14,14 @@ const router = createBrowserRouter([
     ),
     children: [
       {
-        index: true,
+        path: '/',
         element: <Home />,
+        children: [
+          {
+            path: '/',
+            element: <ResultsDetails />,
+          },
+        ],
       },
       {
         path: 'about',

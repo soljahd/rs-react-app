@@ -11,12 +11,13 @@ type ResultsProps = {
   booksPerPage: number;
   currentPage: number;
   onPageChange?: (page: number) => void;
+  onBookSelect?: (bookId: string | null) => void;
+  selectedBookId?: string | null;
 };
 
 function ResultsContainer({ children }: { children: ReactNode }) {
   return (
     <div role="region" className="results flex flex-grow flex-col justify-between gap-4">
-      <h1 className="results_header w-full text-center text-3xl">Results</h1>
       {children}
     </div>
   );
@@ -42,7 +43,15 @@ function EmptyState() {
   );
 }
 
-function BooksList({ books }: { books: Book[] }) {
+function BooksList({
+  books,
+  onSelect,
+  selectedBookId,
+}: {
+  books: Book[];
+  onSelect?: (bookId: string | null) => void;
+  selectedBookId?: string | null;
+}) {
   return (
     <div role="list" aria-label="List of books" className="results_content flex w-full flex-wrap gap-2">
       <div role="presentation" className="results_item flex w-full rounded-lg bg-gray-100 p-2 text-xl">
@@ -50,19 +59,40 @@ function BooksList({ books }: { books: Book[] }) {
         <h3 className="results_item-description flex w-1/2 font-medium">Description</h3>
       </div>
       {books.map((book) => (
-        <BookItem key={book.key} book={book} />
+        <BookItem
+          key={book.key}
+          book={book}
+          onSelect={onSelect}
+          isSelected={selectedBookId === book.key.replace('/works/', '')}
+        />
       ))}
     </div>
   );
 }
 
-function BookItem({ book }: { book: Book }) {
+function BookItem({
+  book,
+  onSelect,
+  isSelected,
+}: {
+  book: Book;
+  onSelect?: (bookId: string | null) => void;
+  isSelected?: boolean;
+}) {
+  const handleClick = () => {
+    if (!onSelect || !book.key) return;
+    const bookId = book.key.replace('/works/', '');
+    onSelect(isSelected ? null : bookId);
+  };
+
   return (
     <div
       role="article"
       aria-label="Books"
-      className="results_item flex w-full rounded-lg border border-gray-200 p-2 text-xl hover:bg-gray-50"
-      key={book.key}
+      className={`results_item flex w-full cursor-pointer rounded-lg border border-gray-200 p-2 text-xl hover:bg-gray-50 ${
+        isSelected ? 'border-blue-300 bg-blue-50' : ''
+      }`}
+      onClick={handleClick}
     >
       <div className="flex w-1/2 items-center font-medium">{book.title}</div>
       <div className="flex w-1/2 items-center text-gray-600">
@@ -83,7 +113,17 @@ function BookItem({ book }: { book: Book }) {
   );
 }
 
-function Results({ loading, error, books, totalBooks, booksPerPage, currentPage, onPageChange }: ResultsProps) {
+function Results({
+  loading,
+  error,
+  books,
+  totalBooks,
+  booksPerPage,
+  currentPage,
+  onPageChange,
+  onBookSelect,
+  selectedBookId,
+}: ResultsProps) {
   const totalPages = Math.ceil(totalBooks / booksPerPage);
 
   const handlePageChange = (page: number) => {
@@ -124,7 +164,7 @@ function Results({ loading, error, books, totalBooks, booksPerPage, currentPage,
 
   return (
     <ResultsContainer>
-      <BooksList books={books} />
+      <BooksList books={books} onSelect={onBookSelect} selectedBookId={selectedBookId} />
       <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} siblingCount={1} />
     </ResultsContainer>
   );

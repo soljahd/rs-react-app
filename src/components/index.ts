@@ -1,6 +1,7 @@
 export { default as AppLayout } from './AppLayout';
 export { default as Search } from './Search';
 export { default as Results } from './Results';
+export { default as ResultsDetails } from './ResultsDetails';
 export { default as Button } from './Button';
 export { default as Spinner } from './Spinner';
 export { default as Pagination } from './Pagination';

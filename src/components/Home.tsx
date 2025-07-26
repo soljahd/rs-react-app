@@ -1,23 +1,25 @@
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { searchBooks } from '../api/api';
+import { useSearchParams, Outlet } from 'react-router-dom';
+import { searchBooks, getBookDetails } from '../api/api';
 import { useLocalStorageQuery } from '../hooks/useLocalStorageQuery';
 import { Results, Search } from '.';
-import type { Book } from '../api/api';
+import type { Book, BookDetails } from '../api/api';
 
-export const ITEMS_PER_PAGE = 8;
+export const ITEMS_PER_PAGE = 4;
 
 function Home() {
   const [isLoading, setIsLoading] = useState(true);
+  const [detailsLoading, setDetailsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [results, setResults] = useState<Book[]>([]);
-
+  const [bookDetails, setBookDetails] = useState<BookDetails | null>(null);
   const [totalBooks, setTotalBooks] = useState(0);
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [query, setQuery] = useLocalStorageQuery('searchQuery');
 
   const currentPage = parseInt(searchParams.get('page') || '1', 10);
+  const bookId = searchParams.get('details');
 
   useEffect(() => {
     if (!searchParams.has('page')) {
@@ -44,6 +46,27 @@ function Home() {
   };
 
   useEffect(() => {
+    const loadBookDetails = async () => {
+      if (bookId) {
+        setDetailsLoading(true);
+        try {
+          const details = await getBookDetails(bookId);
+          setBookDetails(details);
+        } catch (error) {
+          if (error instanceof Error) {
+            setError(error.message);
+          }
+        } finally {
+          setDetailsLoading(false);
+        }
+      } else {
+        setBookDetails(null);
+      }
+    };
+    void loadBookDetails();
+  }, [bookId]);
+
+  useEffect(() => {
     void searchData(query);
   }, [currentPage]);
 
@@ -66,23 +89,54 @@ function Home() {
     handleRequestOnPageChange(page).catch(() => {});
   };
 
+  const handleBookSelect = (bookId: string | null) => {
+    setSearchParams((prev) => {
+      if (bookId) {
+        prev.set('details', bookId);
+      } else {
+        prev.delete('details');
+      }
+      return prev;
+    });
+  };
+
+  const handleCloseDetails = () => {
+    setSearchParams((prev) => {
+      prev.delete('details');
+      return prev;
+    });
+  };
+
   return (
-    <>
+    <div className="flex h-full flex-col">
       <div className="top-controls">
         <Search loading={isLoading} initialValue={query} onSearch={handleSearch} />
       </div>
-      <div className="results flex min-h-[800px]">
-        <Results
-          loading={isLoading}
-          error={error}
-          books={results}
-          totalBooks={totalBooks}
-          booksPerPage={ITEMS_PER_PAGE}
-          currentPage={currentPage}
-          onPageChange={handlePageChange}
+      <div className="flex flex-1 gap-4 pt-8">
+        <div className={bookId ? 'w-1/2' : 'w-full'}>
+          <div className="results flex min-h-[800px]">
+            <Results
+              loading={isLoading}
+              error={error}
+              books={results}
+              totalBooks={totalBooks}
+              booksPerPage={ITEMS_PER_PAGE}
+              currentPage={currentPage}
+              onPageChange={handlePageChange}
+              onBookSelect={handleBookSelect}
+              selectedBookId={bookId}
+            />
+          </div>
+        </div>
+        <Outlet
+          context={{
+            bookDetails,
+            loading: detailsLoading,
+            onClose: handleCloseDetails,
+          }}
         />
       </div>
-    </>
+    </div>
   );
 }
 

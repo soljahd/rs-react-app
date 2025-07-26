@@ -26,6 +26,50 @@ export type Book = {
   ratings_count?: number;
 };
 
+export type Author = {
+  name: string;
+  key: string;
+};
+
+export type BookDescription = string | { type: string; value: string };
+
+export type BookDetails = {
+  key: string;
+  title: string;
+  description?: BookDescription;
+  authors?: Author[];
+  covers?: number[];
+  first_publish_date?: string;
+  subjects?: string[];
+  subject_places?: string[];
+  subject_people?: string[];
+  subject_times?: string[];
+  created?: {
+    type: string;
+    value: string;
+  };
+  last_modified?: {
+    type: string;
+    value: string;
+  };
+  latest_revision?: number;
+  revision?: number;
+  type?: {
+    key: string;
+  };
+  excerpts?: {
+    comment?: string;
+    author?: {
+      key: string;
+    };
+    excerpt: string;
+  }[];
+  links?: {
+    title: string;
+    url: string;
+  }[];
+};
+
 export type SearchBooksResponse = {
   docs: Book[];
   numFound: number;
@@ -46,5 +90,10 @@ export const searchBooks = async (
       limit,
     },
   });
+  return response.data;
+};
+
+export const getBookDetails = async (bookId: string): Promise<BookDetails> => {
+  const response = await api.get<BookDetails>(`/works/${bookId}.json`);
   return response.data;
 };
