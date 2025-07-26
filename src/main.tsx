@@ -2,7 +2,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import './index.css';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import { AppLayout, About, Home, ErrorBoundary } from './components';
+import { AppLayout, About, Home, ErrorBoundary, NotFoundPage } from './components';
 
 const router = createBrowserRouter([
   {
@@ -20,6 +20,10 @@ const router = createBrowserRouter([
       {
         path: 'about',
         element: <About />,
+      },
+      {
+        path: '*',
+        element: <NotFoundPage />,
       },
     ],
   },
