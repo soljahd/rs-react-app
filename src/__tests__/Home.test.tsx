@@ -3,8 +3,8 @@ import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, beforeEach, it, expect, vi } from 'vitest';
 import * as api from '../api/api';
-import App, { ITEMS_PER_PAGE } from '../App';
-import ErrorBoundary from '../components/ErrorBoundary';
+import { Home } from '../components';
+import { ITEMS_PER_PAGE } from '../components/Home';
 
 const mockBooks = {
   docs: [
@@ -14,7 +14,7 @@ const mockBooks = {
   numFound: 2,
 };
 
-describe('App Component', () => {
+describe('Home Component', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
     localStorage.clear();
@@ -23,7 +23,7 @@ describe('App Component', () => {
   const renderApp = () => {
     return render(
       <MemoryRouter>
-        <App />
+        <Home />
       </MemoryRouter>,
     );
   };
@@ -107,24 +107,6 @@ describe('App Component', () => {
     await waitFor(() => {
       expect(screen.getByText('Book One')).toBeInTheDocument();
     });
-  });
-
-  it('displays fallback UI when App throws after clicking error button', async () => {
-    vi.spyOn(console, 'error').mockImplementation(() => {});
-    vi.spyOn(api, 'searchBooks').mockResolvedValue(mockBooks);
-
-    render(
-      <MemoryRouter>
-        <ErrorBoundary>
-          <App />
-        </ErrorBoundary>
-      </MemoryRouter>,
-    );
-
-    const throwButton = await screen.findByRole('button', { name: /throw error/i });
-    await userEvent.click(throwButton);
-
-    expect(screen.getByRole('heading', { name: /error/i })).toBeInTheDocument();
   });
 
   it('handles search from user input and updates localStorage, state, and results', async () => {

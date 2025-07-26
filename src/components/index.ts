@@ -1,6 +1,10 @@
+export { default as AppLayout } from './AppLayout';
 export { default as Search } from './Search';
 export { default as Results } from './Results';
 export { default as Button } from './Button';
 export { default as Spinner } from './Spinner';
 export { default as Pagination } from './Pagination';
+export { default as Header } from './Header';
+export { default as About } from './About';
+export { default as Home } from './Home';
 export { default as ErrorBoundary } from './ErrorBoundary';

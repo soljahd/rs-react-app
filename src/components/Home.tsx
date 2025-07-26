@@ -1,17 +1,17 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { searchBooks } from './api/api';
-import { Button, Results, Search } from './components';
-import { useLocalStorageQuery } from './hooks/useLocalStorageQuery';
-import type { Book } from './api/api';
+import { searchBooks } from '../api/api';
+import { useLocalStorageQuery } from '../hooks/useLocalStorageQuery';
+import { Results, Search } from '.';
+import type { Book } from '../api/api';
 
 export const ITEMS_PER_PAGE = 8;
 
-function App() {
+function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [results, setResults] = useState<Book[]>([]);
-  const [shouldThrowError, setShouldThrowError] = useState(false);
+
   const [totalBooks, setTotalBooks] = useState(0);
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -45,7 +45,7 @@ function App() {
 
   useEffect(() => {
     void searchData(query);
-  }, []);
+  }, [currentPage]);
 
   const handleSearchRequest = async (query: string) => {
     setQuery(query);
@@ -66,16 +66,8 @@ function App() {
     handleRequestOnPageChange(page).catch(() => {});
   };
 
-  const throwError = () => {
-    setShouldThrowError(true);
-  };
-
-  if (shouldThrowError) {
-    throw new Error('This is a test error from the error button!');
-  }
-
   return (
-    <div className="app mx-auto flex min-h-screen max-w-5xl min-w-xs flex-col justify-start gap-8 p-4 pt-16">
+    <>
       <div className="top-controls">
         <Search loading={isLoading} initialValue={query} onSearch={handleSearch} />
       </div>
@@ -90,13 +82,8 @@ function App() {
           onPageChange={handlePageChange}
         />
       </div>
-      <div className="error-button flex justify-end">
-        <Button color="error" onClick={throwError}>
-          Throw Error
-        </Button>
-      </div>
-    </div>
+    </>
   );
 }
 
-export default App;
+export default Home;
