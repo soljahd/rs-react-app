@@ -187,4 +187,5 @@ function Results({
   );
 }
 
+export { BookItem };
 export default Results;

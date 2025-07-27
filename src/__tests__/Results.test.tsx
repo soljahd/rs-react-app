@@ -1,10 +1,12 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, it, expect, vi } from 'vitest';
+import { beforeEach, describe, it, expect, vi } from 'vitest';
 import { Results } from '../components';
+import { BookItem } from '../components/Results';
 import type { Book } from '../api/api';
 
 const mockOnPageChange = vi.fn();
+const mockOnSelect = vi.fn();
 
 const mockBooks: Book[] = [
   {
@@ -33,9 +35,14 @@ const defaultProps = {
   booksPerPage: 10,
   currentPage: 1,
   onPageChange: mockOnPageChange,
+  onBookSelect: mockOnSelect,
 };
 
 describe('Results Component', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   describe('Rendering Tests', () => {
     it('should render correct number of items when data is provided', () => {
       render(<Results books={mockBooks} loading={false} error={null} {...defaultProps} />);
@@ -89,6 +96,19 @@ describe('Results Component', () => {
   });
 
   describe('Pagination test', () => {
+    it('should show loading spinner and pagination when loading with existing books', () => {
+      render(<Results books={mockBooks} loading={true} error={null} {...defaultProps} />);
+
+      const spinner = screen.getByRole('status');
+      expect(spinner).toBeInTheDocument();
+
+      const pagination = screen.getByRole('navigation');
+      expect(pagination).toBeInTheDocument();
+
+      expect(screen.queryByRole('article')).not.toBeInTheDocument();
+      expect(screen.queryByText('Test Book 1')).not.toBeInTheDocument();
+    });
+
     it('should call onPageChange with correct page number when provided', async () => {
       render(<Results books={mockBooks} loading={false} error={null} {...defaultProps} />);
       const nextButton = screen.getByText('>');
@@ -96,6 +116,53 @@ describe('Results Component', () => {
 
       expect(mockOnPageChange).toHaveBeenCalledTimes(1);
       expect(mockOnPageChange).toHaveBeenCalledWith(2);
+    });
+  });
+  describe('BookItem handleClick', () => {
+    const mockBook: Book = {
+      key: '/works/OL123W',
+      title: 'Test Book',
+      author_name: ['Test Author'],
+      first_publish_year: 2020,
+    };
+
+    it('should call onSelect with book ID when clicked and not selected', async () => {
+      render(<BookItem book={mockBook} onSelect={mockOnSelect} isSelected={false} />);
+
+      await userEvent.click(screen.getByRole('article'));
+
+      expect(mockOnSelect).toHaveBeenCalledTimes(1);
+      expect(mockOnSelect).toHaveBeenCalledWith('123W');
+    });
+
+    it('should call onSelect with null when clicked and already selected', async () => {
+      render(<BookItem book={mockBook} onSelect={mockOnSelect} isSelected={true} />);
+
+      await userEvent.click(screen.getByRole('article'));
+
+      expect(mockOnSelect).toHaveBeenCalledTimes(1);
+      expect(mockOnSelect).toHaveBeenCalledWith(null);
+    });
+
+    it('should not call onSelect when onSelect is not provided', async () => {
+      render(<BookItem book={mockBook} onSelect={undefined} isSelected={false} />);
+
+      await userEvent.click(screen.getByRole('article'));
+
+      expect(mockOnSelect).not.toHaveBeenCalled();
+    });
+
+    it('should correctly extract ID from book.key', async () => {
+      const bookWithDifferentKey = {
+        ...mockBook,
+        key: '/works/OL456W',
+      };
+
+      render(<BookItem book={bookWithDifferentKey} onSelect={mockOnSelect} isSelected={false} />);
+
+      await userEvent.click(screen.getByRole('article'));
+
+      expect(mockOnSelect).toHaveBeenCalledWith('456W');
     });
   });
 });

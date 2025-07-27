@@ -27,7 +27,7 @@ describe('Header Component', () => {
 
     expect(mainLink).toBeInTheDocument();
     expect(aboutLink).toBeInTheDocument();
-    expect(mainLink).toHaveAttribute('href', '/');
+    expect(mainLink).toHaveAttribute('href', '/main');
     expect(aboutLink).toHaveAttribute('href', '/about');
   });
 });
