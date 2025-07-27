@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { describe, beforeEach, it, expect, vi } from 'vitest';
-import { searchBooks } from '../api/api';
-import type { SearchBooksResponse, Book } from '../api/api';
+import { searchBooks, getBookDetails } from '../api/api';
+import type { SearchBooksResponse, Book, BookDetails } from '../api/api';
 import type { Mock } from 'vitest';
 
 type MockedAxiosInstance = {
@@ -136,5 +136,27 @@ describe('searchBooks', () => {
     const result = await searchBooks('test');
 
     expect(result.docs[0]).toEqual(mockBook);
+  });
+
+  it('should return book details for valid book ID', async () => {
+    const mockBookDetails: BookDetails = {
+      key: '/works/OL1W',
+      title: 'Test Book Details',
+      description: 'This is a test book description',
+      authors: [
+        { name: 'Author One', key: '/authors/A1' },
+        { name: 'Author Two', key: '/authors/A2' },
+      ],
+      covers: [12345, 67890],
+      first_publish_date: '2020-01-01',
+      subjects: ['Fiction', 'Science Fiction'],
+    };
+
+    mockApiInstance.get.mockResolvedValueOnce({ data: mockBookDetails });
+
+    const result = await getBookDetails('1W');
+
+    expect(result).toEqual(mockBookDetails);
+    expect(mockApiInstance.get).toHaveBeenCalledWith('/works/OL1W.json');
   });
 });

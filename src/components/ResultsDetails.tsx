@@ -1,0 +1,112 @@
+import { useOutletContext } from 'react-router-dom';
+import Spinner from './Spinner';
+import type { BookDetails } from '../api/api';
+import type { ReactNode } from 'react';
+
+type OutletContext = {
+  bookDetails: BookDetails | null;
+  loading: boolean;
+  onClose: () => void;
+};
+
+const CloseButton = ({ onClose }: { onClose: () => void }) => (
+  <button
+    onClick={onClose}
+    className="rounded-full p-2 hover:cursor-pointer hover:bg-gray-200"
+    aria-label="Close details"
+  >
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+    </svg>
+  </button>
+);
+
+const DetailsHeader = ({ title, onClose }: { title: string; onClose: () => void }) => (
+  <div className="flex items-center justify-between gap-4">
+    <h2 className="text-2xl font-bold">{title}</h2>
+    <CloseButton onClose={onClose} />
+  </div>
+);
+
+const DetailSection = ({ title, children }: { title: string; children: ReactNode }) => (
+  <div className="flex flex-col gap-2">
+    <h3 className="text-lg font-semibold">{title}</h3>
+    {children}
+  </div>
+);
+
+const TagList = ({ tags }: { tags: string[] }) => (
+  <div className="flex flex-wrap gap-2">
+    {tags.map((tag, index) => (
+      <span key={index} className="rounded bg-gray-100 px-2 py-1 text-sm">
+        {tag}
+      </span>
+    ))}
+  </div>
+);
+
+function ResultsDetails() {
+  const { bookDetails, loading, onClose } = useOutletContext<OutletContext>();
+
+  const getDescription = () => {
+    if (!bookDetails?.description) return 'No description available';
+    if (typeof bookDetails.description === 'string') return bookDetails.description;
+    return bookDetails.description.value || 'No description available';
+  };
+
+  if (!bookDetails && loading) {
+    return (
+      <div className="flex w-1/2 flex-col gap-6 rounded-lg border border-gray-200 p-4">
+        <div className="flex flex-1 items-center justify-center">
+          <Spinner size="xl" />
+        </div>
+      </div>
+    );
+  }
+
+  if (!bookDetails) return null;
+
+  return (
+    <div className="flex w-1/2 flex-col gap-6 overflow-hidden overflow-y-auto rounded-lg border border-gray-200 p-4">
+      {loading ? (
+        <div className="flex flex-1 items-center justify-center">
+          <Spinner size="xl" />
+        </div>
+      ) : (
+        <>
+          <DetailsHeader title="Book Details" onClose={onClose} />
+
+          <div className="flex flex-col gap-6">
+            <h1 className="text-3xl font-bold">{bookDetails.title}</h1>
+
+            <div className="flex flex-col gap-6">
+              {bookDetails.authors && (
+                <DetailSection title="Authors">
+                  <p>{bookDetails.authors.map((a) => a.name).join(', ')}</p>
+                </DetailSection>
+              )}
+
+              {bookDetails.first_publish_date && (
+                <DetailSection title="First Published">
+                  <p>{bookDetails.first_publish_date}</p>
+                </DetailSection>
+              )}
+
+              <DetailSection title="Description">
+                <p className="overflow-hidden overflow-ellipsis whitespace-pre-line">{getDescription()}</p>
+              </DetailSection>
+
+              {bookDetails.subjects && (
+                <DetailSection title="Subjects">
+                  <TagList tags={bookDetails.subjects} />
+                </DetailSection>
+              )}
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+export default ResultsDetails;
