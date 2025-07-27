@@ -3,7 +3,7 @@ import Button from './Button';
 
 function NotFoundPage() {
   return (
-    <div className="flex min-h-96 flex-col items-center justify-center">
+    <div className="mx-auto flex min-h-96 flex-col items-center justify-center">
       <div className="flex w-full max-w-md flex-col items-center gap-6 rounded-xl bg-white p-8 text-center shadow-2xl">
         <h1 className="text-4xl font-bold text-gray-800">404 - Page Not Found</h1>
 

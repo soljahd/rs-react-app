@@ -13,18 +13,26 @@ type ResultsProps = {
   onPageChange?: (page: number) => void;
   onBookSelect?: (bookId: string | null) => void;
   selectedBookId?: string | null;
+  className?: string;
 };
 
-function ResultsContainer({ children }: { children: ReactNode }) {
+function ResultsContainer({ children, className = '' }: { children: ReactNode; className?: string }) {
   return (
-    <div role="region" className="results flex flex-grow flex-col justify-between gap-4">
+    <div
+      role="region"
+      className={`results flex min-w-[26rem] flex-grow flex-col justify-between gap-4 rounded-lg border border-gray-200 p-2 ${className}`}
+    >
       {children}
     </div>
   );
 }
 
 function LoadingState() {
-  return <Spinner size="xl" />;
+  return (
+    <div className="flex h-full items-center justify-center">
+      <Spinner size="xl" />
+    </div>
+  );
 }
 
 function ErrorState({ error }: { error: string }) {
@@ -89,13 +97,13 @@ function BookItem({
     <div
       role="article"
       aria-label="Books"
-      className={`results_item flex w-full cursor-pointer rounded-lg border border-gray-200 p-2 text-xl hover:bg-gray-50 ${
-        isSelected ? 'border-blue-300 bg-blue-50' : ''
+      className={`results_item flex h-32 w-full cursor-pointer overflow-y-auto rounded-lg border border-gray-200 p-2 text-xl hover:bg-blue-50 ${
+        isSelected ? 'border-blue-500 bg-blue-100' : ''
       }`}
       onClick={handleClick}
     >
-      <div className="flex w-1/2 items-center font-medium">{book.title}</div>
-      <div className="flex w-1/2 items-center text-gray-600">
+      <div className="flex w-1/2 font-medium">{book.title}</div>
+      <div className="flex w-1/2 text-gray-600">
         <ul className="flex flex-col gap-1">
           <li className="flex gap-2">
             <span className="font-semibold">Author:</span>
@@ -123,6 +131,7 @@ function Results({
   onPageChange,
   onBookSelect,
   selectedBookId,
+  className,
 }: ResultsProps) {
   const totalPages = Math.ceil(totalBooks / booksPerPage);
 
@@ -132,9 +141,9 @@ function Results({
     }
   };
 
-  if (loading) {
+  if (loading && books.length > 0) {
     return (
-      <ResultsContainer>
+      <ResultsContainer className={className}>
         <LoadingState />
         <Pagination
           currentPage={currentPage}
@@ -146,9 +155,17 @@ function Results({
     );
   }
 
+  if (loading) {
+    return (
+      <ResultsContainer className={className}>
+        <LoadingState />
+      </ResultsContainer>
+    );
+  }
+
   if (error) {
     return (
-      <ResultsContainer>
+      <ResultsContainer className={className}>
         <ErrorState error={error} />
       </ResultsContainer>
     );
@@ -156,14 +173,14 @@ function Results({
 
   if (books.length === 0) {
     return (
-      <ResultsContainer>
+      <ResultsContainer className={className}>
         <EmptyState />
       </ResultsContainer>
     );
   }
 
   return (
-    <ResultsContainer>
+    <ResultsContainer className={className}>
       <BooksList books={books} onSelect={onBookSelect} selectedBookId={selectedBookId} />
       <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} siblingCount={1} />
     </ResultsContainer>

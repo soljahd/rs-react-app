@@ -68,9 +68,10 @@ function Home() {
 
   useEffect(() => {
     void searchData(query);
-  }, [currentPage]);
+  }, [currentPage, query]);
 
   const handleSearchRequest = async (query: string) => {
+    setResults([]);
     setQuery(query);
     setSearchParams({ page: '1' });
     await searchData(query, 1);
@@ -108,26 +109,23 @@ function Home() {
   };
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex w-full flex-1 flex-col gap-8">
       <div className="top-controls">
         <Search loading={isLoading} initialValue={query} onSearch={handleSearch} />
       </div>
-      <div className="flex flex-1 gap-4 pt-8">
-        <div className={bookId ? 'w-1/2' : 'w-full'}>
-          <div className="results flex min-h-[800px]">
-            <Results
-              loading={isLoading}
-              error={error}
-              books={results}
-              totalBooks={totalBooks}
-              booksPerPage={ITEMS_PER_PAGE}
-              currentPage={currentPage}
-              onPageChange={handlePageChange}
-              onBookSelect={handleBookSelect}
-              selectedBookId={bookId}
-            />
-          </div>
-        </div>
+      <div className="results flex h-168 gap-4">
+        <Results
+          loading={isLoading}
+          error={error}
+          books={results}
+          totalBooks={totalBooks}
+          booksPerPage={ITEMS_PER_PAGE}
+          currentPage={currentPage}
+          onPageChange={handlePageChange}
+          onBookSelect={handleBookSelect}
+          selectedBookId={bookId}
+          className={`${bookId ? 'w-1/2' : 'w-full'} min-w-1/2`}
+        />
         <Outlet
           context={{
             bookDetails,

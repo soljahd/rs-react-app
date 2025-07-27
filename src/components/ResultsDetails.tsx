@@ -10,7 +10,11 @@ type OutletContext = {
 };
 
 const CloseButton = ({ onClose }: { onClose: () => void }) => (
-  <button onClick={onClose} className="rounded-full p-2 hover:bg-gray-200" aria-label="Close details">
+  <button
+    onClick={onClose}
+    className="rounded-full p-2 hover:cursor-pointer hover:bg-gray-200"
+    aria-label="Close details"
+  >
     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
     </svg>
@@ -63,7 +67,7 @@ function ResultsDetails() {
   if (!bookDetails) return null;
 
   return (
-    <div className="flex w-1/2 flex-col gap-6 overflow-hidden rounded-lg border border-gray-200 p-4">
+    <div className="flex w-1/2 flex-col gap-6 overflow-hidden overflow-y-auto rounded-lg border border-gray-200 p-4">
       {loading ? (
         <div className="flex flex-1 items-center justify-center">
           <Spinner size="xl" />
@@ -89,7 +93,7 @@ function ResultsDetails() {
               )}
 
               <DetailSection title="Description">
-                <p className="whitespace-pre-line">{getDescription()}</p>
+                <p className="overflow-hidden overflow-ellipsis whitespace-pre-line">{getDescription()}</p>
               </DetailSection>
 
               {bookDetails.subjects && (

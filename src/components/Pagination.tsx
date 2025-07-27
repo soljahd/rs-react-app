@@ -53,7 +53,11 @@ function Pagination({ currentPage, totalPages, onPageChange, siblingCount = 1 }:
   const renderPaginationItem = (item: number | '...', index: number): ReactNode => {
     if (item === '...') {
       return (
-        <span key={`dots-${index.toString()}`} className="min-w-8 px-2 py-1 text-center text-sm" aria-hidden="true">
+        <span
+          key={`dots-${index.toString()}`}
+          className="min-w-8 px-2 py-1 text-center text-sm hover:cursor-default"
+          aria-hidden="true"
+        >
           &hellip;
         </span>
       );
