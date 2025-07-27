@@ -28,13 +28,8 @@ function Home() {
   }, [searchParams, setSearchParams]);
 
   useEffect(() => {
-    setSearchParams((prev) => {
-      prev.delete('details');
-      setBookDetails(null);
-      return prev;
-    });
     void searchData(query);
-  }, [currentPage, query]);
+  }, []);
 
   const searchData = async (query: string, page: number = currentPage, limit: number = ITEMS_PER_PAGE) => {
     const offset = (page - 1) * limit;
@@ -66,7 +61,12 @@ function Home() {
   };
 
   const handleOnPageChangeRequest = async (page: number) => {
-    setSearchParams({ page: page.toString() });
+    setSearchParams((prev) => {
+      prev.set('page', page.toString());
+      prev.delete('details');
+      return prev;
+    });
+    setBookDetails(null);
     await searchData(query, page);
   };
 
