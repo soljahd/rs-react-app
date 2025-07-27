@@ -94,6 +94,6 @@ export const searchBooks = async (
 };
 
 export const getBookDetails = async (bookId: string): Promise<BookDetails> => {
-  const response = await api.get<BookDetails>(`/works/${bookId}.json`);
+  const response = await api.get<BookDetails>(`/works/OL${bookId}.json`);
   return response.data;
 };

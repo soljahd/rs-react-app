@@ -20,7 +20,7 @@ function ResultsContainer({ children, className = '' }: { children: ReactNode; c
   return (
     <div
       role="region"
-      className={`results flex min-w-[26rem] flex-grow flex-col justify-between gap-4 rounded-lg border border-gray-200 p-2 ${className}`}
+      className={`results flex min-w-128 flex-grow flex-col justify-between gap-4 rounded-lg border border-gray-200 p-2 ${className}`}
     >
       {children}
     </div>
@@ -71,7 +71,7 @@ function BooksList({
           key={book.key}
           book={book}
           onSelect={onSelect}
-          isSelected={selectedBookId === book.key.replace('/works/', '')}
+          isSelected={selectedBookId === book.key.replace('/works/OL', '')}
         />
       ))}
     </div>
@@ -89,7 +89,7 @@ function BookItem({
 }) {
   const handleClick = () => {
     if (!onSelect || !book.key) return;
-    const bookId = book.key.replace('/works/', '');
+    const bookId = book.key.replace('/works/OL', '');
     onSelect(isSelected ? null : bookId);
   };
 

@@ -1,23 +1,24 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams, Outlet } from 'react-router-dom';
+import Results from './Results';
+import Search from './Search';
 import { searchBooks, getBookDetails } from '../api/api';
 import { useLocalStorageQuery } from '../hooks/useLocalStorageQuery';
-import { Results, Search } from '.';
 import type { Book, BookDetails } from '../api/api';
 
 export const ITEMS_PER_PAGE = 4;
 
 function Home() {
+  const [initialized, setInitialized] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [detailsLoading, setDetailsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [results, setResults] = useState<Book[]>([]);
   const [bookDetails, setBookDetails] = useState<BookDetails | null>(null);
   const [totalBooks, setTotalBooks] = useState(0);
-  const [searchParams, setSearchParams] = useSearchParams();
 
   const [query, setQuery] = useLocalStorageQuery('searchQuery');
-
+  const [searchParams, setSearchParams] = useSearchParams();
   const currentPage = parseInt(searchParams.get('page') || '1', 10);
   const bookId = searchParams.get('details');
 
@@ -27,32 +28,60 @@ function Home() {
     }
   }, [searchParams, setSearchParams]);
 
-  useEffect(() => {
-    void searchData(query);
-  }, []);
+  const searchData = useCallback(
+    async (query: string, page: number = currentPage, limit: number = ITEMS_PER_PAGE) => {
+      const offset = (page - 1) * limit;
+      setIsLoading(true);
+      setError(null);
+      try {
+        const response = await searchBooks(query, offset, limit);
+        setResults(response.docs);
+        setTotalBooks(response.numFound);
+      } catch (error) {
+        if (error instanceof Error) {
+          setError(error.message);
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [currentPage],
+  );
 
-  const searchData = async (query: string, page: number = currentPage, limit: number = ITEMS_PER_PAGE) => {
-    const offset = (page - 1) * limit;
-    setIsLoading(true);
-    setError(null);
-
+  const loadBookDetails = useCallback(async (id: string) => {
+    setDetailsLoading(true);
     try {
-      const response = await searchBooks(query, offset, limit);
-      setResults(response.docs);
-      setTotalBooks(response.numFound);
+      const details = await getBookDetails(id);
+      setBookDetails(details);
     } catch (error) {
       if (error instanceof Error) {
         setError(error.message);
       }
     } finally {
-      setIsLoading(false);
+      setDetailsLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    const initializeData = async () => {
+      if (!initialized) {
+        await searchData(query);
+        if (bookId) await loadBookDetails(bookId);
+        setInitialized(true);
+      }
+    };
+    initializeData().catch(() => {});
+  }, [bookId, initialized, loadBookDetails, query, searchData]);
 
   const handleSearchRequest = async (query: string) => {
     setResults([]);
     setQuery(query);
-    setSearchParams({ page: '1' });
+    setBookDetails(null);
+    setSearchParams((prev) => {
+      prev.set('page', '1');
+      prev.delete('details');
+      return prev;
+    });
     await searchData(query, 1);
   };
 
@@ -85,19 +114,7 @@ function Home() {
       return prev;
     });
 
-    if (bookId) {
-      setDetailsLoading(true);
-      try {
-        const details = await getBookDetails(bookId);
-        setBookDetails(details);
-      } catch (error) {
-        if (error instanceof Error) {
-          setError(error.message);
-        }
-      } finally {
-        setDetailsLoading(false);
-      }
-    }
+    if (bookId) await loadBookDetails(bookId);
   };
 
   const handleBookSelect = (bookId: string | null) => {

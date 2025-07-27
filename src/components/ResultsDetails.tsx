@@ -1,5 +1,5 @@
 import { useOutletContext } from 'react-router-dom';
-import { Spinner } from '.';
+import Spinner from './Spinner';
 import type { BookDetails } from '../api/api';
 import type { ReactNode } from 'react';
 
