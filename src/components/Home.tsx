@@ -27,6 +27,15 @@ function Home() {
     }
   }, [searchParams, setSearchParams]);
 
+  useEffect(() => {
+    setSearchParams((prev) => {
+      prev.delete('details');
+      setBookDetails(null);
+      return prev;
+    });
+    void searchData(query);
+  }, [currentPage, query]);
+
   const searchData = async (query: string, page: number = currentPage, limit: number = ITEMS_PER_PAGE) => {
     const offset = (page - 1) * limit;
     setIsLoading(true);
@@ -45,31 +54,6 @@ function Home() {
     }
   };
 
-  useEffect(() => {
-    const loadBookDetails = async () => {
-      if (bookId) {
-        setDetailsLoading(true);
-        try {
-          const details = await getBookDetails(bookId);
-          setBookDetails(details);
-        } catch (error) {
-          if (error instanceof Error) {
-            setError(error.message);
-          }
-        } finally {
-          setDetailsLoading(false);
-        }
-      } else {
-        setBookDetails(null);
-      }
-    };
-    void loadBookDetails();
-  }, [bookId]);
-
-  useEffect(() => {
-    void searchData(query);
-  }, [currentPage, query]);
-
   const handleSearchRequest = async (query: string) => {
     setResults([]);
     setQuery(query);
@@ -81,24 +65,43 @@ function Home() {
     handleSearchRequest(query).catch(() => {});
   };
 
-  const handleRequestOnPageChange = async (page: number) => {
+  const handleOnPageChangeRequest = async (page: number) => {
     setSearchParams({ page: page.toString() });
     await searchData(query, page);
   };
 
   const handlePageChange = (page: number) => {
-    handleRequestOnPageChange(page).catch(() => {});
+    handleOnPageChangeRequest(page).catch(() => {});
   };
 
-  const handleBookSelect = (bookId: string | null) => {
+  const handleBookSelectRequest = async (bookId: string | null) => {
     setSearchParams((prev) => {
       if (bookId) {
         prev.set('details', bookId);
       } else {
         prev.delete('details');
+        setBookDetails(null);
       }
       return prev;
     });
+
+    if (bookId) {
+      setDetailsLoading(true);
+      try {
+        const details = await getBookDetails(bookId);
+        setBookDetails(details);
+      } catch (error) {
+        if (error instanceof Error) {
+          setError(error.message);
+        }
+      } finally {
+        setDetailsLoading(false);
+      }
+    }
+  };
+
+  const handleBookSelect = (bookId: string | null) => {
+    handleBookSelectRequest(bookId).catch(() => {});
   };
 
   const handleCloseDetails = () => {
@@ -106,6 +109,7 @@ function Home() {
       prev.delete('details');
       return prev;
     });
+    setBookDetails(null);
   };
 
   return (
