@@ -1,9 +1,10 @@
 import { Link } from 'react-router-dom';
+import { ThemeToggle } from './ThemeToggle';
 
 function Header() {
   return (
-    <header className="flex justify-start bg-gray-800 shadow-lg">
-      <nav className="flex gap-6 px-8 py-4 font-medium">
+    <header className="flex items-center justify-between bg-gray-800 px-8 py-4 shadow-lg">
+      <nav className="flex gap-6 font-medium">
         <Link to="/main" className="text-lg text-gray-300 underline-offset-4 hover:text-white hover:underline">
           Main
         </Link>
@@ -11,6 +12,7 @@ function Header() {
           About
         </Link>
       </nav>
+      <ThemeToggle />
     </header>
   );
 }
