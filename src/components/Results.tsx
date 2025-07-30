@@ -1,7 +1,9 @@
+import { useDispatch, useSelector } from 'react-redux';
 import Pagination from './Pagination';
 import Spinner from './Spinner';
+import { toggleBookSelection, selectSelectedBooks } from '../store/booksSlice';
 import type { Book } from '../api/api';
-import type { ReactNode } from 'react';
+import type { ReactNode, ChangeEvent, MouseEvent } from 'react';
 
 type ResultsProps = {
   loading: boolean;
@@ -87,9 +89,23 @@ function BookItem({
   onSelect?: (bookId: string | null) => void;
   isSelected?: boolean;
 }) {
+  const dispatch = useDispatch();
+  const selectedBooks = useSelector(selectSelectedBooks);
+
+  const bookId = book.key.replace('/works/OL', '');
+  const isChecked = selectedBooks.some((b) => b.id === bookId);
+
+  const handleCheckboxChange = (e: ChangeEvent<HTMLInputElement>) => {
+    e.stopPropagation();
+    dispatch(toggleBookSelection(book));
+  };
+
+  const handleCheckboxClick = (e: MouseEvent<HTMLInputElement>) => {
+    e.stopPropagation();
+  };
+
   const handleClick = () => {
     if (!onSelect || !book.key) return;
-    const bookId = book.key.replace('/works/OL', '');
     onSelect(isSelected ? null : bookId);
   };
 
@@ -102,8 +118,17 @@ function BookItem({
       }`}
       onClick={handleClick}
     >
-      <div className="flex w-1/2 font-medium">{book.title}</div>
-      <div className="flex w-1/2 text-gray-600">
+      <div className="flex w-1/12 items-center">
+        <input
+          type="checkbox"
+          checked={isChecked}
+          onChange={handleCheckboxChange}
+          onClick={handleCheckboxClick}
+          className="h-8 w-8 cursor-pointer accent-blue-600"
+        />
+      </div>
+      <div className="flex w-5/12 font-medium">{book.title}</div>
+      <div className="flex w-6/12 text-gray-600">
         <ul className="flex flex-col gap-1">
           <li className="flex gap-2">
             <span className="font-semibold">Author:</span>
