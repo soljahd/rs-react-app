@@ -1,6 +1,7 @@
 import { useDispatch, useSelector } from 'react-redux';
 import Button from './Button';
 import { selectSelectedBooks, clearSelectedBooks } from '../store/booksSlice';
+import downloadItemsAsCSV from '../utils/saveCSV';
 
 function SelectedBooksFlyout() {
   const dispatch = useDispatch();
@@ -15,13 +16,15 @@ function SelectedBooksFlyout() {
   };
 
   const handleDownload = () => {
-    console.log('Downloading:', selectedBooks);
+    downloadItemsAsCSV(selectedBooks);
   };
 
   return (
     <div className="fixed right-4 bottom-4 rounded-lg border border-gray-200 bg-white p-4 shadow-lg">
       <div className="flex items-center gap-4">
-        <span>{selectedBooks.length} books selected</span>
+        <span>
+          {selectedBooks.length} book{selectedBooks.length !== 1 ? 's' : ''} selected
+        </span>
         <Button color="secondary" onClick={handleClearSelection}>
           Clear selection
         </Button>

@@ -2,7 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 import type { Book } from '../api/api';
 import type { PayloadAction } from '@reduxjs/toolkit';
 
-type SelectedBook = {
+export type SelectedBook = {
   id: string;
   title: string;
   author: string;
