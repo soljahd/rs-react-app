@@ -15,7 +15,9 @@ const sizeClasses: Record<SpinnerSize, string> = {
 function Spinner({ size = 'md' }: SpinnerProps) {
   return (
     <div className="flex items-center justify-center" role="status" aria-label="Loading">
-      <div className={`animate-spin rounded-full border-blue-500 border-t-transparent ${sizeClasses[size]}`} />
+      <div
+        className={`animate-spin rounded-full border-blue-500 border-t-transparent dark:border-blue-400 dark:border-t-transparent ${sizeClasses[size]}`}
+      />
     </div>
   );
 }

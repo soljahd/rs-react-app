@@ -20,19 +20,19 @@ type ButtonProps = {
 const baseClasses = 'font-medium rounded-lg transition-colors focus:outline-none';
 
 const colorClasses: Record<ButtonColor, string> = {
-  primary: 'bg-blue-600 hover:bg-blue-700 text-white',
-  secondary: 'bg-gray-600 hover:bg-gray-700 text-white',
-  error: 'bg-red-600 hover:bg-red-700 text-white',
-  success: 'bg-green-600 hover:bg-green-700 text-white',
-  ghost: 'bg-transparent hover:bg-gray-100 text-gray-800',
+  primary: 'bg-blue-600 hover:bg-blue-700 text-white dark:bg-blue-500 dark:hover:bg-blue-600',
+  secondary: 'bg-gray-600 hover:bg-gray-700 text-white dark:bg-gray-500 dark:hover:bg-gray-600',
+  error: 'bg-red-600 hover:bg-red-700 text-white dark:bg-red-500 dark:hover:bg-red-600',
+  success: 'bg-green-600 hover:bg-green-700 text-white dark:bg-green-500 dark:hover:bg-green-600',
+  ghost: 'bg-transparent hover:bg-gray-100 text-gray-800 dark:text-gray-200 dark:hover:bg-gray-700',
 };
 
 const activeColorClasses: Record<ButtonColor, string> = {
-  primary: 'active:bg-blue-800 active:shadow-inner',
-  secondary: 'active:bg-gray-800 active:shadow-inner',
-  error: 'active:bg-red-800 active:shadow-inner',
-  success: 'active:bg-green-800 active:shadow-inner',
-  ghost: 'active:bg-gray-300 active:shadow-inner',
+  primary: 'active:bg-blue-800 active:shadow-inner dark:active:bg-blue-700',
+  secondary: 'active:bg-gray-800 active:shadow-inner dark:active:bg-gray-700',
+  error: 'active:bg-red-800 active:shadow-inner dark:active:bg-red-700',
+  success: 'active:bg-green-800 active:shadow-inner dark:active:bg-green-700',
+  ghost: 'active:bg-gray-300 active:shadow-inner dark:active:bg-gray-600',
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
@@ -42,11 +42,11 @@ const sizeClasses: Record<ButtonSize, string> = {
 };
 
 const ringClasses: Record<ButtonColor, string> = {
-  primary: 'ring-blue-500',
-  secondary: 'ring-gray-500',
-  error: 'ring-red-500',
-  success: 'ring-green-500',
-  ghost: 'ring-gray-400',
+  primary: 'ring-blue-500 dark:ring-blue-400',
+  secondary: 'ring-gray-500 dark:ring-gray-400',
+  error: 'ring-red-500 dark:ring-red-400',
+  success: 'ring-green-500 dark:ring-green-400',
+  ghost: 'ring-gray-400 dark:ring-gray-500',
 };
 
 function Button({

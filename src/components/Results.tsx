@@ -22,7 +22,7 @@ function ResultsContainer({ children, className = '' }: { children: ReactNode; c
   return (
     <div
       role="region"
-      className={`results flex min-w-128 flex-grow flex-col justify-between gap-4 rounded-lg border border-gray-200 p-2 ${className}`}
+      className={`results flex min-w-128 flex-grow flex-col justify-between gap-4 rounded-lg border border-gray-200 p-2 dark:border-gray-700 dark:bg-gray-800 ${className}`}
     >
       {children}
     </div>
@@ -39,7 +39,7 @@ function LoadingState() {
 
 function ErrorState({ error }: { error: string }) {
   return (
-    <div role="alert" className="results_content results_error text-red-500">
+    <div role="alert" className="results_content results_error text-red-500 dark:text-red-400">
       {error}
     </div>
   );
@@ -47,7 +47,7 @@ function ErrorState({ error }: { error: string }) {
 
 function EmptyState() {
   return (
-    <p role="status" className="results_content text-gray-500">
+    <p role="status" className="results_content text-gray-500 dark:text-gray-400">
       No books found. Try another search.
     </p>
   );
@@ -64,9 +64,9 @@ function BooksList({
 }) {
   return (
     <div role="list" aria-label="List of books" className="results_content flex w-full flex-wrap gap-2">
-      <div role="presentation" className="results_item flex w-full rounded-lg bg-gray-100 p-2 text-xl">
-        <h3 className="results_item-title flex w-1/2 font-medium">Title</h3>
-        <h3 className="results_item-description flex w-1/2 font-medium">Description</h3>
+      <div role="presentation" className="results_item flex w-full rounded-lg bg-gray-100 p-2 text-xl dark:bg-gray-700">
+        <h3 className="results_item-title flex w-1/2 font-medium dark:text-white">Title</h3>
+        <h3 className="results_item-description flex w-1/2 font-medium dark:text-white">Description</h3>
       </div>
       {books.map((book) => (
         <BookItem
@@ -113,22 +113,22 @@ function BookItem({
     <div
       role="article"
       aria-label="Books"
-      className={`results_item flex h-32 w-full cursor-pointer overflow-y-auto rounded-lg border border-gray-200 p-2 text-xl hover:bg-blue-50 ${
-        isSelected ? 'border-blue-500 bg-blue-100' : ''
+      className={`results_item flex h-32 w-full cursor-pointer overflow-y-auto rounded-lg border border-gray-200 p-2 text-xl hover:bg-blue-50 dark:border-gray-600 dark:hover:bg-gray-700 ${
+        isSelected ? 'border-blue-500 bg-blue-100 dark:border-blue-400 dark:bg-gray-600' : ''
       }`}
       onClick={handleClick}
     >
-      <div className="flex w-1/12 items-center">
+      <div className="flex w-1/12 items-center text-red-400">
         <input
           type="checkbox"
           checked={isChecked}
           onChange={handleCheckboxChange}
           onClick={handleCheckboxClick}
-          className="h-8 w-8 cursor-pointer accent-blue-600"
+          className="h-8 w-8 cursor-pointer accent-blue-600 dark:accent-blue-500"
         />
       </div>
-      <div className="flex w-5/12 font-medium">{book.title}</div>
-      <div className="flex w-6/12 text-gray-600">
+      <div className="flex w-5/12 font-medium dark:text-white">{book.title}</div>
+      <div className="flex w-6/12 text-gray-600 dark:text-gray-300">
         <ul className="flex flex-col gap-1">
           <li className="flex gap-2">
             <span className="font-semibold">Author:</span>

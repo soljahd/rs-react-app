@@ -20,9 +20,9 @@ function SelectedBooksFlyout() {
   };
 
   return (
-    <div className="fixed right-4 bottom-4 rounded-lg border border-gray-200 bg-white p-4 shadow-lg">
+    <div className="fixed right-4 bottom-4 rounded-lg border border-gray-200 bg-white p-4 shadow-lg dark:border-gray-700 dark:bg-gray-800 dark:shadow-gray-700/50">
       <div className="flex items-center gap-4">
-        <span>
+        <span className="dark:text-gray-200">
           {selectedBooks.length} book{selectedBooks.length !== 1 ? 's' : ''} selected
         </span>
         <Button color="secondary" onClick={handleClearSelection}>
