@@ -55,7 +55,7 @@ function Pagination({ currentPage, totalPages, onPageChange, siblingCount = 1 }:
       return (
         <span
           key={`dots-${index.toString()}`}
-          className="min-w-8 px-2 py-1 text-center text-sm hover:cursor-default"
+          className="min-w-8 px-2 py-1 text-center text-sm text-gray-600 hover:cursor-default dark:text-gray-400"
           aria-hidden="true"
         >
           &hellip;

@@ -1,7 +1,7 @@
 import { Outlet } from 'react-router-dom';
 import Results from './Results';
 import Search from './Search';
-
+import SelectedBooksFlyout from './SelectedBooksFlyout';
 import { useBookManager, ITEMS_PER_PAGE } from '../hooks/useBookManager';
 
 function Home() {
@@ -46,6 +46,7 @@ function Home() {
             onClose: handleCloseDetails,
           }}
         />
+        <SelectedBooksFlyout />
       </div>
     </div>
   );

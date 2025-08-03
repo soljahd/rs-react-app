@@ -2,12 +2,15 @@ import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, it, expect } from 'vitest';
 import { Header } from '../components';
+import { ThemeProvider } from '../providers/themeProvider';
 
 describe('Header Component', () => {
   it('should renders correctly', () => {
     render(
       <MemoryRouter>
-        <Header />
+        <ThemeProvider>
+          <Header />
+        </ThemeProvider>
       </MemoryRouter>,
     );
 
@@ -18,7 +21,9 @@ describe('Header Component', () => {
   it('should contains navigation links', () => {
     render(
       <MemoryRouter>
-        <Header />
+        <ThemeProvider>
+          <Header />
+        </ThemeProvider>
       </MemoryRouter>,
     );
 
@@ -29,5 +34,33 @@ describe('Header Component', () => {
     expect(aboutLink).toBeInTheDocument();
     expect(mainLink).toHaveAttribute('href', '/main');
     expect(aboutLink).toHaveAttribute('href', '/about');
+  });
+
+  it('should render Main as span when on main page', () => {
+    render(
+      <MemoryRouter initialEntries={['/main']}>
+        <ThemeProvider>
+          <Header />
+        </ThemeProvider>
+      </MemoryRouter>,
+    );
+    const mainElement = screen.getByText('Main');
+    expect(mainElement).toBeInTheDocument();
+    expect(mainElement).toHaveClass('cursor-default');
+    expect(mainElement.tagName).toBe('SPAN');
+  });
+
+  it('should render About as span when on about page', () => {
+    render(
+      <MemoryRouter initialEntries={['/about']}>
+        <ThemeProvider>
+          <Header />
+        </ThemeProvider>
+      </MemoryRouter>,
+    );
+    const mainElement = screen.getByText('About');
+    expect(mainElement).toBeInTheDocument();
+    expect(mainElement).toHaveClass('cursor-default');
+    expect(mainElement.tagName).toBe('SPAN');
   });
 });

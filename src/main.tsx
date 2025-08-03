@@ -1,8 +1,11 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
+import { Provider } from 'react-redux';
 import './index.css';
 import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
 import { AppLayout, About, Home, ErrorBoundary, NotFoundPage, ResultsDetails } from './components';
+import { ThemeProvider } from './providers/themeProvider';
+import { store } from './store';
 
 const router = createBrowserRouter([
   {
@@ -47,6 +50,10 @@ if (!rootElement) {
 
 createRoot(rootElement).render(
   <StrictMode>
-    <RouterProvider router={router} />
+    <ThemeProvider>
+      <Provider store={store}>
+        <RouterProvider router={router} />
+      </Provider>
+    </ThemeProvider>
   </StrictMode>,
 );

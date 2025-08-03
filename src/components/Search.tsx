@@ -27,7 +27,7 @@ function Search({ loading, initialValue, onSearch }: SearchProps) {
         aria-busy={loading}
         disabled={loading}
         type="text"
-        className="w-full rounded-lg border border-gray-300 bg-gray-50 p-2 focus:border-blue-700 focus:outline-none"
+        className="w-full rounded-lg border border-gray-300 bg-gray-50 p-2 focus:border-blue-700 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500"
         value={searchQuery}
         placeholder="Enter book title or author..."
         onChange={handleChange}

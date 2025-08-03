@@ -49,7 +49,6 @@ export default tseslint.config([
       noInlineConfig: true,
     },
     rules: {
-      // 'no-console': 'warn',
       '@typescript-eslint/consistent-type-assertions': ['error', { assertionStyle: 'never' }],
       '@typescript-eslint/consistent-type-imports': 'error',
       '@typescript-eslint/consistent-type-definitions': ['error', 'type'],
