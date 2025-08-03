@@ -1,17 +1,22 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { Provider } from 'react-redux';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { describe, beforeEach, it, expect, vi } from 'vitest';
 import * as api from '../api/api';
 import { Home, ResultsDetails } from '../components';
 import { ITEMS_PER_PAGE } from '../hooks/useBookManager';
+import { store } from '../store';
 
 const mockBooks = {
   docs: [
     { key: 'book1', title: 'Book One', author_name: ['Author One'] },
     { key: 'book2', title: 'Book Two', author_name: ['Author Two'] },
+    { key: 'book3', title: 'Book Three', author_name: ['Author Three'] },
+    { key: 'book4', title: 'Book Four', author_name: ['Author Four'] },
+    { key: 'book5', title: 'Book Five', author_name: ['Author Five'] },
   ],
-  numFound: 2,
+  numFound: 5,
 };
 
 const mockBookDetails = {
@@ -29,13 +34,15 @@ describe('Home Component', () => {
 
   const renderApp = (searchQuery = '') => {
     return render(
-      <MemoryRouter initialEntries={[`/main${searchQuery}`]}>
-        <Routes>
-          <Route path="/main" element={<Home />}>
-            <Route path="/main" element={<ResultsDetails />} />
-          </Route>
-        </Routes>
-      </MemoryRouter>,
+      <Provider store={store}>
+        <MemoryRouter initialEntries={[`/main${searchQuery}`]}>
+          <Routes>
+            <Route path="/main" element={<Home />}>
+              <Route path="/main" element={<ResultsDetails />} />
+            </Route>
+          </Routes>
+        </MemoryRouter>
+      </Provider>,
     );
   };
 
@@ -145,9 +152,13 @@ describe('Home Component', () => {
   });
 
   it('should handles pagination correctly', async () => {
+    const user = userEvent.setup();
     const searchSpy = vi.spyOn(api, 'searchBooks').mockResolvedValue(mockBooks);
 
     renderApp('/?page=2');
+
+    const nextPage = await screen.findByText('<');
+    await user.click(nextPage);
 
     await waitFor(() => {
       expect(searchSpy).toHaveBeenCalledWith('', (2 - 1) * ITEMS_PER_PAGE, ITEMS_PER_PAGE);
@@ -156,10 +167,12 @@ describe('Home Component', () => {
 
   it('should set error when get details error request', async () => {
     const errorMessage = 'Network Error';
-    const detailsSpy = vi.spyOn(api, 'getBookDetails').mockRejectedValueOnce(new Error(errorMessage));
+    vi.spyOn(api, 'getBookDetails').mockRejectedValue(new Error(errorMessage));
+    renderApp('/?page=1&details=book1');
 
-    renderApp('?details=book1');
-    await expect(detailsSpy).rejects.toThrow(errorMessage);
+    await waitFor(() => {
+      expect(screen.getByText(errorMessage)).toBeInTheDocument();
+    });
   });
 
   it('should loads book details when bookId is in URL', async () => {
@@ -193,7 +206,7 @@ describe('Home Component', () => {
     });
   });
 
-  it('should handles book selection correctly', async () => {
+  it('should handles book selection and unselection correctly', async () => {
     vi.spyOn(api, 'searchBooks').mockResolvedValue(mockBooks);
     const detailsSpy = vi.spyOn(api, 'getBookDetails').mockResolvedValue(mockBookDetails);
 
@@ -201,6 +214,12 @@ describe('Home Component', () => {
 
     await waitFor(() => {
       expect(screen.getByText('Book One')).toBeInTheDocument();
+    });
+
+    await userEvent.click(screen.getByText('Book One'));
+
+    await waitFor(() => {
+      expect(detailsSpy).toHaveBeenCalledWith('book1');
     });
 
     await userEvent.click(screen.getByText('Book One'));

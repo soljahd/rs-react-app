@@ -26,7 +26,7 @@ function SelectedBooksFlyout() {
           {selectedBooks.length} book{selectedBooks.length !== 1 ? 's' : ''} selected
         </span>
         <Button color="secondary" onClick={handleClearSelection}>
-          Clear selection
+          Unselect all
         </Button>
         <Button onClick={handleDownload}>Download</Button>
       </div>

@@ -3,7 +3,6 @@ import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 
-// https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   test: {
@@ -12,7 +11,7 @@ export default defineConfig({
     globals: true,
     setupFiles: './src/setupTests.ts',
     coverage: {
-      enabled: true,
+      enabled: false,
       reporter: ['text'],
       include: ['src/**/*.{js,jsx,ts,tsx}'],
       exclude: [

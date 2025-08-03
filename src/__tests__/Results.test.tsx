@@ -1,8 +1,10 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { Provider } from 'react-redux';
 import { beforeEach, describe, it, expect, vi } from 'vitest';
 import { Results } from '../components';
 import { BookItem } from '../components/Results';
+import { store } from '../store';
 import type { Book } from '../api/api';
 
 const mockOnPageChange = vi.fn();
@@ -39,20 +41,27 @@ const defaultProps = {
 };
 
 describe('Results Component', () => {
+  const renderResults = (props = {}) => {
+    return render(
+      <Provider store={store}>
+        <Results books={mockBooks} loading={false} error={null} {...defaultProps} {...props} />
+      </Provider>,
+    );
+  };
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   describe('Rendering Tests', () => {
     it('should render correct number of items when data is provided', () => {
-      render(<Results books={mockBooks} loading={false} error={null} {...defaultProps} />);
+      renderResults();
       expect(screen.getAllByRole('article')).toHaveLength(mockBooks.length);
       expect(screen.getByText('Test Book 1')).toBeInTheDocument();
       expect(screen.getByText('Test Book 2')).toBeInTheDocument();
     });
 
     it('should display "no results" message when data array is empty', () => {
-      render(<Results books={[]} loading={false} error={null} {...defaultProps} />);
+      renderResults({ books: [] });
       const status = screen.getByRole('status');
       expect(status).toBeInTheDocument();
       expect(status).toHaveTextContent(/no books found/i);
@@ -60,14 +69,14 @@ describe('Results Component', () => {
     });
 
     it('should show loading state while fetching data', () => {
-      render(<Results books={[]} loading={true} error={null} {...defaultProps} />);
+      renderResults({ books: [], loading: true });
       expect(screen.getByRole('status')).toBeInTheDocument();
     });
   });
 
   describe('Data Display Tests', () => {
     it('should correctly display item names and descriptions', () => {
-      render(<Results books={mockBooks} loading={false} error={null} {...defaultProps} />);
+      renderResults();
       expect(screen.getByText('Test Book 1')).toBeInTheDocument();
       expect(screen.getByText('Author 1')).toBeInTheDocument();
       expect(screen.getByText('2000')).toBeInTheDocument();
@@ -75,21 +84,21 @@ describe('Results Component', () => {
     });
 
     it('should handle missing or undefined data gracefully', () => {
-      render(<Results books={[mockBookWithMissingData]} loading={false} error={null} {...defaultProps} />);
+      renderResults({ books: [mockBookWithMissingData] });
       expect(screen.getByText('Book with Missing Data')).toBeInTheDocument();
       expect(screen.getByText('Unknown author')).toBeInTheDocument();
       expect(screen.queryByText(/First published/i)).not.toBeInTheDocument();
     });
 
     it('should render column headers correctly', () => {
-      render(<Results books={mockBooks} loading={false} error={null} {...defaultProps} />);
+      renderResults();
       expect(screen.getByText('Title')).toBeInTheDocument();
       expect(screen.getByText('Description')).toBeInTheDocument();
     });
 
     it('should display error message when API call fails', () => {
       const errorMsg = 'Failed to fetch data';
-      render(<Results books={[]} loading={false} error={errorMsg} {...defaultProps} />);
+      renderResults({ books: [], error: errorMsg });
       expect(screen.getByText(errorMsg)).toBeInTheDocument();
       expect(screen.getByRole('alert')).toBeInTheDocument();
     });
@@ -97,7 +106,7 @@ describe('Results Component', () => {
 
   describe('Pagination test', () => {
     it('should show loading spinner and pagination when loading with existing books', () => {
-      render(<Results books={mockBooks} loading={true} error={null} {...defaultProps} />);
+      renderResults({ loading: true });
 
       const spinner = screen.getByRole('status');
       expect(spinner).toBeInTheDocument();
@@ -110,7 +119,7 @@ describe('Results Component', () => {
     });
 
     it('should call onPageChange with correct page number when provided', async () => {
-      render(<Results books={mockBooks} loading={false} error={null} {...defaultProps} />);
+      renderResults();
       const nextButton = screen.getByText('>');
       await userEvent.click(nextButton);
 
@@ -118,6 +127,7 @@ describe('Results Component', () => {
       expect(mockOnPageChange).toHaveBeenCalledWith(2);
     });
   });
+
   describe('BookItem handleClick', () => {
     const mockBook: Book = {
       key: '/works/OL123W',
@@ -126,29 +136,31 @@ describe('Results Component', () => {
       first_publish_year: 2020,
     };
 
+    const renderBookItem = (props = {}) => {
+      return render(
+        <Provider store={store}>
+          <BookItem book={mockBook} onSelect={mockOnSelect} {...props} />
+        </Provider>,
+      );
+    };
+
     it('should call onSelect with book ID when clicked and not selected', async () => {
-      render(<BookItem book={mockBook} onSelect={mockOnSelect} isSelected={false} />);
-
+      renderBookItem({ isSelected: false });
       await userEvent.click(screen.getByRole('article'));
-
       expect(mockOnSelect).toHaveBeenCalledTimes(1);
       expect(mockOnSelect).toHaveBeenCalledWith('123W');
     });
 
     it('should call onSelect with null when clicked and already selected', async () => {
-      render(<BookItem book={mockBook} onSelect={mockOnSelect} isSelected={true} />);
-
+      renderBookItem({ isSelected: true });
       await userEvent.click(screen.getByRole('article'));
-
       expect(mockOnSelect).toHaveBeenCalledTimes(1);
       expect(mockOnSelect).toHaveBeenCalledWith(null);
     });
 
     it('should not call onSelect when onSelect is not provided', async () => {
-      render(<BookItem book={mockBook} onSelect={undefined} isSelected={false} />);
-
+      renderBookItem({ onSelect: undefined, isSelected: false });
       await userEvent.click(screen.getByRole('article'));
-
       expect(mockOnSelect).not.toHaveBeenCalled();
     });
 
@@ -157,12 +169,19 @@ describe('Results Component', () => {
         ...mockBook,
         key: '/works/OL456W',
       };
-
-      render(<BookItem book={bookWithDifferentKey} onSelect={mockOnSelect} isSelected={false} />);
-
+      renderBookItem({ book: bookWithDifferentKey, isSelected: false });
       await userEvent.click(screen.getByRole('article'));
-
       expect(mockOnSelect).toHaveBeenCalledWith('456W');
+    });
+
+    it('should not trigger parent click handler when checkbox is clicked', async () => {
+      const mockOnSelect = vi.fn();
+      renderBookItem({ onSelect: mockOnSelect });
+
+      const checkbox = screen.getByRole('checkbox');
+      await userEvent.click(checkbox);
+
+      expect(mockOnSelect).not.toHaveBeenCalled();
     });
   });
 });

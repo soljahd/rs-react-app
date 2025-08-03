@@ -1,11 +1,10 @@
 import { useTheme } from '../hooks/useTheme';
 
 export const ThemeToggle = () => {
-  const { isDarkMode, toggleTheme } = useTheme();
+  const { toggleTheme } = useTheme();
 
   return (
     <div
-      aria-label={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
       onClick={toggleTheme}
       className={`relative h-8 w-14 cursor-pointer rounded-full bg-gray-600 transition-colors duration-300`}
     >
