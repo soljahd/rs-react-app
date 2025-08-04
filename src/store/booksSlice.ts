@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import type { Book } from '../api/api';
+import type { Book } from '../types';
 import type { PayloadAction } from '@reduxjs/toolkit';
 
 export type SelectedBook = {

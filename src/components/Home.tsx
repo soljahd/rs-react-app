@@ -44,6 +44,7 @@ function Home() {
             bookDetails,
             loading: detailsLoading,
             onClose: handleCloseDetails,
+            bookId,
           }}
         />
         <SelectedBooksFlyout />

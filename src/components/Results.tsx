@@ -2,7 +2,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import Pagination from './Pagination';
 import Spinner from './Spinner';
 import { toggleBookSelection, selectSelectedBooks } from '../store/booksSlice';
-import type { Book } from '../api/api';
+import type { Book } from '../types';
 import type { ReactNode, ChangeEvent, MouseEvent } from 'react';
 
 type ResultsProps = {

@@ -1,20 +1,13 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useLocalStorageQuery } from './useLocalStorageQuery';
-import { searchBooks, getBookDetails } from '../api/api';
-import type { Book, BookDetails } from '../api/api';
+import { useSearchBooksQuery, useGetBookDetailsQuery } from '../api/api';
+import type { SerializedError } from '@reduxjs/toolkit';
+import type { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 
 export const ITEMS_PER_PAGE = 4;
 
 export const useBookManager = () => {
-  const [initialized, setInitialized] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [detailsLoading, setDetailsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [results, setResults] = useState<Book[]>([]);
-  const [bookDetails, setBookDetails] = useState<BookDetails | null>(null);
-  const [totalBooks, setTotalBooks] = useState(0);
-
   const [query, setQuery] = useLocalStorageQuery('searchQuery');
   const [searchParams, setSearchParams] = useSearchParams();
   const currentPage = parseInt(searchParams.get('page') || '1', 10);
@@ -26,97 +19,44 @@ export const useBookManager = () => {
     }
   }, [searchParams, setSearchParams]);
 
-  const searchData = useCallback(
-    async (query: string, page: number = currentPage, limit: number = ITEMS_PER_PAGE) => {
-      const offset = (page - 1) * limit;
-      setIsLoading(true);
-      setError(null);
-      try {
-        const response = await searchBooks(query, offset, limit);
-        setResults(response.docs);
-        setTotalBooks(response.numFound);
-      } catch (error) {
-        if (error instanceof Error) {
-          setError(error.message);
-        }
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    [currentPage],
-  );
+  const {
+    data: searchData,
+    isFetching: isSearchFetching,
+    error: searchError,
+  } = useSearchBooksQuery({ query: query === '' ? 'popular' : query, page: currentPage, limit: ITEMS_PER_PAGE });
 
-  const loadBookDetails = useCallback(async (id: string) => {
-    setDetailsLoading(true);
-    try {
-      const details = await getBookDetails(id);
-      setBookDetails(details);
-    } catch (error) {
-      if (error instanceof Error) {
-        setError(error.message);
-      }
-    } finally {
-      setDetailsLoading(false);
-    }
-  }, []);
+  const {
+    data: bookDetails,
+    isFetching: isDetailsFetching,
+    error: detailsError,
+  } = useGetBookDetailsQuery(bookId || '', { skip: !bookId });
 
-  useEffect(() => {
-    const initializeData = async () => {
-      if (!initialized) {
-        await searchData(query);
-        if (bookId) await loadBookDetails(bookId);
-        setInitialized(true);
-      }
-    };
-    initializeData().catch(() => {});
-  }, [bookId, initialized, loadBookDetails, query, searchData]);
-
-  const handleSearchRequest = async (query: string) => {
-    setResults([]);
-    setQuery(query);
-    setBookDetails(null);
+  const handleSearch = (newQuery: string) => {
+    setQuery(newQuery);
     setSearchParams((prev) => {
       prev.set('page', '1');
       prev.delete('details');
       return prev;
     });
-    await searchData(query, 1);
   };
 
-  const handleSearch = (query: string) => {
-    handleSearchRequest(query).catch(() => {});
-  };
-
-  const handleOnPageChangeRequest = async (page: number) => {
+  const handlePageChange = (page: number) => {
     setSearchParams((prev) => {
       prev.set('page', page.toString());
       prev.delete('details');
       return prev;
     });
-    setBookDetails(null);
-    await searchData(query, page);
   };
 
-  const handlePageChange = (page: number) => {
-    handleOnPageChangeRequest(page).catch(() => {});
-  };
-
-  const handleBookSelectRequest = async (bookId: string | null) => {
+  const handleBookSelect = (id: string | null) => {
     setSearchParams((prev) => {
-      if (bookId) {
-        prev.set('details', bookId);
+      if (id) {
+        prev.set('details', id);
       } else {
         prev.delete('details');
-        setBookDetails(null);
       }
       return prev;
     });
-
-    if (bookId) await loadBookDetails(bookId);
-  };
-
-  const handleBookSelect = (bookId: string | null) => {
-    handleBookSelectRequest(bookId).catch(() => {});
   };
 
   const handleCloseDetails = () => {
@@ -124,19 +64,26 @@ export const useBookManager = () => {
       prev.delete('details');
       return prev;
     });
-    setBookDetails(null);
+  };
+
+  const parseError = (error: FetchBaseQueryError | SerializedError | undefined): string | null => {
+    if (!error) return null;
+    if ('status' in error) {
+      return error.status.toString();
+    }
+    return error.message || 'Unknown error';
   };
 
   return {
     query,
     currentPage,
     bookId,
-    isLoading,
-    detailsLoading,
-    error,
-    results,
+    isLoading: isSearchFetching,
+    detailsLoading: isDetailsFetching,
+    error: parseError(searchError || detailsError),
+    results: searchData?.docs || [],
     bookDetails,
-    totalBooks,
+    totalBooks: searchData?.numFound || 0,
     handleSearch,
     handlePageChange,
     handleBookSelect,
