@@ -1,7 +1,8 @@
 import { useEffect } from 'react';
+import { useDispatch } from 'react-redux';
 import { useSearchParams } from 'react-router-dom';
 import { useLocalStorageQuery } from './useLocalStorageQuery';
-import { useSearchBooksQuery, useGetBookDetailsQuery } from '../api/api';
+import { useSearchBooksQuery, useGetBookDetailsQuery, booksApi } from '../api/api';
 import type { SerializedError } from '@reduxjs/toolkit';
 import type { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 
@@ -23,15 +24,20 @@ export const useBookManager = () => {
     data: searchData,
     isFetching: isSearchFetching,
     error: searchError,
+    refetch: refetchSearchData,
   } = useSearchBooksQuery({ query: query === '' ? 'popular' : query, page: currentPage, limit: ITEMS_PER_PAGE });
 
   const {
     data: bookDetails,
     isFetching: isDetailsFetching,
     error: detailsError,
+    refetch: refetchBookDetails,
   } = useGetBookDetailsQuery(bookId || '', { skip: !bookId });
 
+  const dispatch = useDispatch();
+
   const handleSearch = (newQuery: string) => {
+    dispatch(booksApi.util.invalidateTags(['BookList', 'Book']));
     setQuery(newQuery);
     setSearchParams((prev) => {
       prev.set('page', '1');
@@ -88,5 +94,7 @@ export const useBookManager = () => {
     handlePageChange,
     handleBookSelect,
     handleCloseDetails,
+    refetchSearchData: () => void refetchSearchData(),
+    refetchBookDetails: () => void refetchBookDetails(),
   };
 };

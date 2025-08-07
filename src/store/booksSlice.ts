@@ -43,10 +43,11 @@ export const selectedBooksSlice = createSlice({
       state.selectedBooks = [];
     },
   },
+  selectors: {
+    selectSelectedBooks: (state: SelectedBooksState) => state.selectedBooks,
+  },
 });
 
 export const { toggleBookSelection, clearSelectedBooks } = selectedBooksSlice.actions;
-
-export const selectSelectedBooks = (state: { selectedBooks: SelectedBooksState }) => state.selectedBooks.selectedBooks;
-
+export const { selectSelectedBooks } = selectedBooksSlice.selectors;
 export default selectedBooksSlice.reducer;

@@ -7,6 +7,7 @@ export const booksApi = createApi({
     baseUrl: 'https://openlibrary.org',
     timeout: 5000,
   }),
+  tagTypes: ['Book', 'BookList'],
   endpoints: (builder) => ({
     searchBooks: builder.query<SearchBooksResponse, { query: string; page: number; limit: number }>({
       query: ({ query, page, limit }) => ({
@@ -17,13 +18,15 @@ export const booksApi = createApi({
           limit,
         },
       }),
+      providesTags: ['BookList'],
       keepUnusedDataFor: 300,
     }),
     getBookDetails: builder.query<BookDetails, string>({
       query: (bookId) => `/works/OL${bookId}.json`,
+      providesTags: ['Book'],
       keepUnusedDataFor: 300,
     }),
   }),
 });
 
-export const { useSearchBooksQuery, useGetBookDetailsQuery, useLazySearchBooksQuery } = booksApi;
+export const { useSearchBooksQuery, useGetBookDetailsQuery } = booksApi;
