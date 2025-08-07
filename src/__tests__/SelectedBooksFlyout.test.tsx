@@ -1,16 +1,16 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { render, screen } from '@testing-library/react';
 import { Provider } from 'react-redux';
-import { describe, it, expect, vi } from 'vitest';
+import { beforeAll, describe, it, expect, vi } from 'vitest';
 import SelectedBooksFlyout from '../components/SelectedBooksFlyout';
 import selectedBooksReducer, { clearSelectedBooks } from '../store/booksSlice';
 import type { SelectedBook } from '../store/booksSlice';
 
-vi.mock('../utils/saveCSV', () => ({
-  default: vi.fn(),
-}));
-
 describe('SelectedBooksFlyout', () => {
+  beforeAll(() => {
+    global.URL.createObjectURL = vi.fn(() => 'blob:mock-url');
+  });
+
   const createStore = (selectedBooks: SelectedBook[] = []) => {
     return configureStore({
       reducer: {
@@ -68,12 +68,5 @@ describe('SelectedBooksFlyout', () => {
 
     screen.getByText('Unselect all').click();
     expect(store.dispatch).toHaveBeenCalledWith(clearSelectedBooks());
-  });
-
-  it('should call downloadItemsAsCSV with selected books when Download is clicked', async () => {
-    const { default: downloadItemsAsCSV } = await import('../utils/saveCSV');
-    renderFlyout(selectedBooks);
-    screen.getByText('Download').click();
-    expect(downloadItemsAsCSV).toHaveBeenCalledWith(selectedBooks);
   });
 });

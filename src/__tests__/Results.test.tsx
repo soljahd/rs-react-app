@@ -5,7 +5,7 @@ import { beforeEach, describe, it, expect, vi } from 'vitest';
 import { Results } from '../components';
 import { BookItem } from '../components/Results';
 import { store } from '../store';
-import type { Book } from '../api/api';
+import type { Book } from '../types';
 
 const mockOnPageChange = vi.fn();
 const mockOnSelect = vi.fn();

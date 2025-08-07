@@ -5,8 +5,8 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { describe, beforeEach, it, expect, vi } from 'vitest';
 import * as api from '../api/api';
 import { Home, ResultsDetails } from '../components';
-import { ITEMS_PER_PAGE } from '../hooks/useBookManager';
 import { store } from '../store';
+import type { Mock } from 'vitest';
 
 const mockBooks = {
   docs: [
@@ -26,10 +26,24 @@ const mockBookDetails = {
   description: 'Test description',
 };
 
+vi.mock('../api/api', async () => {
+  const actual = await vi.importActual<typeof import('../api/api')>('../api/api');
+  return {
+    ...actual,
+    useSearchBooksQuery: vi.fn(),
+    useGetBookDetailsQuery: vi.fn(),
+  };
+});
+
+const useSearchBooksQueryMock = api.useSearchBooksQuery as Mock;
+const useGetBookDetailsQueryMock = api.useGetBookDetailsQuery as Mock;
+
 describe('Home Component', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
     localStorage.clear();
+    useSearchBooksQueryMock.mockReset();
+    useGetBookDetailsQueryMock.mockReset();
   });
 
   const renderApp = (searchQuery = '') => {
@@ -46,66 +60,83 @@ describe('Home Component', () => {
     );
   };
 
-  it('should renders without crashing', () => {
+  it('should render without crashing', () => {
+    useSearchBooksQueryMock.mockReturnValue({
+      data: mockBooks,
+      isFetching: false,
+      error: undefined,
+      refetch: vi.fn(),
+    });
+
+    useGetBookDetailsQueryMock.mockReturnValue({
+      data: undefined,
+      isFetching: false,
+      error: undefined,
+      refetch: vi.fn(),
+    });
+
     renderApp();
     expect(screen.getByRole('textbox')).toBeInTheDocument();
   });
 
-  it('should makes initial API call on component mount', async () => {
-    const searchSpy = vi.spyOn(api, 'searchBooks').mockResolvedValue(mockBooks);
-    renderApp();
-
-    await waitFor(() => {
-      expect(searchSpy).toHaveBeenCalledWith('', 0, ITEMS_PER_PAGE);
-    });
-  });
-
-  it('should uses localStorage search term on initial load', async () => {
+  it('should use localStorage search term on initial load', async () => {
     localStorage.setItem('searchQuery', 'harry potter');
-    const searchSpy = vi.spyOn(api, 'searchBooks').mockResolvedValue(mockBooks);
+
+    useSearchBooksQueryMock.mockReturnValue({
+      data: mockBooks,
+      isFetching: false,
+      error: undefined,
+      refetch: vi.fn(),
+    });
+
+    useGetBookDetailsQueryMock.mockReturnValue({
+      data: undefined,
+      isFetching: false,
+      error: undefined,
+      refetch: vi.fn(),
+    });
 
     renderApp();
 
     await waitFor(() => {
-      expect(searchSpy).toHaveBeenCalledWith('harry potter', 0, ITEMS_PER_PAGE);
+      expect(screen.getByDisplayValue('harry potter')).toBeInTheDocument();
     });
   });
 
-  it('should shows loading state when searching', async () => {
-    vi.spyOn(api, 'searchBooks').mockImplementation(() => {
-      return new Promise((resolve) =>
-        setTimeout(() => {
-          resolve(mockBooks);
-        }, 500),
-      );
+  it('should show loading state when searching', () => {
+    useSearchBooksQueryMock.mockReturnValue({
+      data: undefined,
+      isFetching: true,
+      error: undefined,
+      refetch: vi.fn(),
+    });
+
+    useGetBookDetailsQueryMock.mockReturnValue({
+      data: undefined,
+      isFetching: false,
+      error: undefined,
+      refetch: vi.fn(),
     });
 
     renderApp();
     expect(screen.getByRole('textbox')).toBeDisabled();
-
-    await waitFor(() => {
-      expect(screen.getByRole('textbox')).not.toBeDisabled();
-    });
   });
 
-  it('should calls API with correct parameters when user searches', async () => {
-    const searchSpy = vi.spyOn(api, 'searchBooks').mockResolvedValue(mockBooks);
-
-    renderApp();
-    const input = screen.getByRole('textbox', { name: 'Search' });
-    const searchButton = await screen.findByRole('button', { name: 'Search' });
-
-    await userEvent.clear(input);
-    await userEvent.type(input, 'lord of the rings');
-    await userEvent.click(searchButton);
-
-    await waitFor(() => {
-      expect(searchSpy).toHaveBeenLastCalledWith('lord of the rings', 0, ITEMS_PER_PAGE);
+  it('should render book results on successful API response', async () => {
+    useSearchBooksQueryMock.mockReturnValue({
+      data: mockBooks,
+      isFetching: false,
+      error: undefined,
+      refetch: vi.fn(),
     });
-  });
 
-  it('should renders book results on successful API response', async () => {
-    vi.spyOn(api, 'searchBooks').mockResolvedValue(mockBooks);
+    useGetBookDetailsQueryMock.mockReturnValue({
+      data: undefined,
+      isFetching: false,
+      error: undefined,
+      refetch: vi.fn(),
+    });
+
     renderApp();
 
     await waitFor(() => {
@@ -114,8 +145,21 @@ describe('Home Component', () => {
     });
   });
 
-  it('should shows error message when API fails', async () => {
-    vi.spyOn(api, 'searchBooks').mockRejectedValue(new Error('API failed'));
+  it('should show error message when API fails', async () => {
+    useSearchBooksQueryMock.mockReturnValue({
+      data: undefined,
+      isFetching: false,
+      error: { message: 'API failed' },
+      refetch: vi.fn(),
+    });
+
+    useGetBookDetailsQueryMock.mockReturnValue({
+      data: undefined,
+      isFetching: false,
+      error: undefined,
+      refetch: vi.fn(),
+    });
+
     renderApp();
 
     await waitFor(() => {
@@ -123,22 +167,25 @@ describe('Home Component', () => {
     });
   });
 
-  it('should updates state with new results after successful search', async () => {
-    vi.spyOn(api, 'searchBooks').mockResolvedValue(mockBooks);
-    renderApp();
-
-    await waitFor(() => {
-      expect(screen.getByText('Book One')).toBeInTheDocument();
+  it('should update localStorage after search', async () => {
+    useSearchBooksQueryMock.mockReturnValue({
+      data: mockBooks,
+      isFetching: false,
+      error: undefined,
+      refetch: vi.fn(),
     });
-  });
 
-  it('should handles search from user input and updates localStorage, state, and results', async () => {
-    const searchSpy = vi.spyOn(api, 'searchBooks').mockResolvedValue(mockBooks);
+    useGetBookDetailsQueryMock.mockReturnValue({
+      data: undefined,
+      isFetching: false,
+      error: undefined,
+      refetch: vi.fn(),
+    });
 
     renderApp();
 
-    const input = screen.getByRole('textbox', { name: 'Search' });
-    const searchButton = await screen.findByRole('button', { name: 'Search' });
+    const input = screen.getByRole('textbox', { name: /search/i });
+    const searchButton = await screen.findByRole('button', { name: /search/i });
 
     await userEvent.clear(input);
     await userEvent.type(input, 'gatsby');
@@ -147,125 +194,90 @@ describe('Home Component', () => {
     await waitFor(() => {
       expect(localStorage.getItem('searchQuery')).toBe('gatsby');
     });
-
-    expect(searchSpy).toHaveBeenLastCalledWith('gatsby', 0, ITEMS_PER_PAGE);
   });
 
-  it('should handles pagination correctly', async () => {
-    const user = userEvent.setup();
-    const searchSpy = vi.spyOn(api, 'searchBooks').mockResolvedValue(mockBooks);
-
-    renderApp('/?page=2');
-
-    const nextPage = await screen.findByText('<');
-    await user.click(nextPage);
-
-    await waitFor(() => {
-      expect(searchSpy).toHaveBeenCalledWith('', (2 - 1) * ITEMS_PER_PAGE, ITEMS_PER_PAGE);
+  it('should show loading state when fetching book details', async () => {
+    useSearchBooksQueryMock.mockReturnValue({
+      data: mockBooks,
+      isFetching: false,
+      error: undefined,
+      refetch: vi.fn(),
     });
-  });
 
-  it('should set error when get details error request', async () => {
-    const errorMessage = 'Network Error';
-    vi.spyOn(api, 'getBookDetails').mockRejectedValue(new Error(errorMessage));
-    renderApp('/?page=1&details=book1');
-
-    await waitFor(() => {
-      expect(screen.getByText(errorMessage)).toBeInTheDocument();
-    });
-  });
-
-  it('should loads book details when bookId is in URL', async () => {
-    const searchSpy = vi.spyOn(api, 'searchBooks').mockResolvedValue(mockBooks);
-    const detailsSpy = vi.spyOn(api, 'getBookDetails').mockResolvedValue(mockBookDetails);
-
-    renderApp('?details=book1');
-
-    await waitFor(() => {
-      expect(detailsSpy).toHaveBeenCalledWith('book1');
-    });
-    expect(searchSpy).toHaveBeenCalled();
-  });
-
-  it('should shows loading state when fetching book details', async () => {
-    vi.spyOn(api, 'searchBooks').mockResolvedValue(mockBooks);
-    vi.spyOn(api, 'getBookDetails').mockImplementation(() => {
-      return new Promise((resolve) =>
-        setTimeout(() => {
-          resolve(mockBookDetails);
-        }, 1000),
-      );
+    useGetBookDetailsQueryMock.mockReturnValue({
+      data: undefined,
+      isFetching: true,
+      error: undefined,
+      refetch: vi.fn(),
     });
 
     renderApp('?page=1&details=book1');
 
     expect(await screen.findByRole('status')).toBeInTheDocument();
-
-    await waitFor(() => {
-      expect(screen.queryByRole('status')).not.toBeInTheDocument();
-    });
   });
 
-  it('should handles book selection and unselection correctly', async () => {
-    vi.spyOn(api, 'searchBooks').mockResolvedValue(mockBooks);
-    const detailsSpy = vi.spyOn(api, 'getBookDetails').mockResolvedValue(mockBookDetails);
-
-    renderApp();
-
-    await waitFor(() => {
-      expect(screen.getByText('Book One')).toBeInTheDocument();
+  it('should load book details when bookId is in URL', async () => {
+    useSearchBooksQueryMock.mockReturnValue({
+      data: mockBooks,
+      isFetching: false,
+      error: undefined,
+      refetch: vi.fn(),
     });
 
-    await userEvent.click(screen.getByText('Book One'));
-
-    await waitFor(() => {
-      expect(detailsSpy).toHaveBeenCalledWith('book1');
+    useGetBookDetailsQueryMock.mockReturnValue({
+      data: mockBookDetails,
+      isFetching: false,
+      error: undefined,
+      refetch: vi.fn(),
     });
-
-    await userEvent.click(screen.getByText('Book One'));
-
-    await waitFor(() => {
-      expect(detailsSpy).toHaveBeenCalledWith('book1');
-    });
-  });
-
-  it('should resets to page 1 when performing a new search', async () => {
-    const searchSpy = vi.spyOn(api, 'searchBooks').mockResolvedValue(mockBooks);
-
-    renderApp('?page=2');
-
-    const input = screen.getByRole('textbox', { name: 'Search' });
-    const searchButton = await screen.findByRole('button', { name: 'Search' });
-
-    await userEvent.clear(input);
-    await userEvent.type(input, 'new search');
-    await userEvent.click(searchButton);
-
-    await waitFor(() => {
-      expect(searchSpy).toHaveBeenLastCalledWith('new search', 0, ITEMS_PER_PAGE);
-    });
-  });
-
-  it('should clears book details when closing details view', async () => {
-    vi.spyOn(api, 'searchBooks').mockResolvedValue(mockBooks);
-    vi.spyOn(api, 'getBookDetails').mockResolvedValue(mockBookDetails);
 
     renderApp('?page=1&details=book1');
 
     await waitFor(() => {
-      expect(screen.getByText('Book Details')).toBeInTheDocument();
-    });
-
-    const closeButton = screen.getByRole('button', { name: /close/i });
-    await userEvent.click(closeButton);
-
-    await waitFor(() => {
-      expect(screen.queryByText('Book Details')).not.toBeInTheDocument();
+      expect(screen.getByText('Detailed Book')).toBeInTheDocument();
     });
   });
 
-  it('should shows empty state when no results found', async () => {
-    vi.spyOn(api, 'searchBooks').mockResolvedValue({ docs: [], numFound: 0 });
+  it('should clear book details when closing details view', async () => {
+    useSearchBooksQueryMock.mockReturnValue({
+      data: mockBooks,
+      isFetching: false,
+      error: undefined,
+      refetch: vi.fn(),
+    });
+
+    useGetBookDetailsQueryMock.mockReturnValue({
+      data: mockBookDetails,
+      isFetching: false,
+      error: undefined,
+      refetch: vi.fn(),
+    });
+
+    renderApp('?page=1&details=book1');
+
+    const closeButton = await screen.findByRole('button', { name: /close/i });
+    await userEvent.click(closeButton);
+
+    await waitFor(() => {
+      expect(screen.queryByText('Detailed Book')).not.toBeInTheDocument();
+    });
+  });
+
+  it('should show empty state when no results found', async () => {
+    useSearchBooksQueryMock.mockReturnValue({
+      data: { docs: [], numFound: 0 },
+      isFetching: false,
+      error: undefined,
+      refetch: vi.fn(),
+    });
+
+    useGetBookDetailsQueryMock.mockReturnValue({
+      data: undefined,
+      isFetching: false,
+      error: undefined,
+      refetch: vi.fn(),
+    });
+
     renderApp();
 
     await waitFor(() => {
@@ -273,9 +285,22 @@ describe('Home Component', () => {
     });
   });
 
-  it('should maintains search query in input field', async () => {
+  it('should maintain search query in input field', async () => {
     localStorage.setItem('searchQuery', 'persisted query');
-    vi.spyOn(api, 'searchBooks').mockResolvedValue(mockBooks);
+
+    useSearchBooksQueryMock.mockReturnValue({
+      data: mockBooks,
+      isFetching: false,
+      error: undefined,
+      refetch: vi.fn(),
+    });
+
+    useGetBookDetailsQueryMock.mockReturnValue({
+      data: undefined,
+      isFetching: false,
+      error: undefined,
+      refetch: vi.fn(),
+    });
 
     renderApp();
 

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { selectedBooksSlice, selectSelectedBooks } from '../store/booksSlice';
-import type { Book } from '../api/api';
+import type { Book } from '../types';
 
 describe('selectedBooksSlice', () => {
   const initialState = { selectedBooks: [] };
