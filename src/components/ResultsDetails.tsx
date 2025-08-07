@@ -1,12 +1,15 @@
 import { useOutletContext } from 'react-router-dom';
+import Button from './Button';
 import Spinner from './Spinner';
-import type { BookDetails } from '../api/api';
+import type { BookDetails } from '../types';
 import type { ReactNode } from 'react';
 
 type OutletContext = {
-  bookDetails: BookDetails | null;
+  bookDetails: BookDetails;
   loading: boolean;
+  bookId: string | null;
   onClose: () => void;
+  onRefresh: () => void;
 };
 
 const CloseButton = ({ onClose }: { onClose: () => void }) => (
@@ -46,34 +49,27 @@ const TagList = ({ tags }: { tags: string[] }) => (
 );
 
 function ResultsDetails() {
-  const { bookDetails, loading, onClose } = useOutletContext<OutletContext>();
+  const { bookDetails, loading, onClose, bookId, onRefresh } = useOutletContext<OutletContext>();
 
   const getDescription = () => {
-    if (!bookDetails?.description) return 'No description available';
+    if (!bookDetails.description) return 'No description available';
     if (typeof bookDetails.description === 'string') return bookDetails.description;
     return bookDetails.description.value || 'No description available';
   };
 
-  if (!bookDetails && loading) {
-    return (
-      <div className="flex w-1/2 flex-col gap-6 rounded-lg border border-gray-200 p-4 dark:border-gray-700 dark:bg-gray-800">
-        <div className="flex flex-1 items-center justify-center">
-          <Spinner size="xl" />
-        </div>
-      </div>
-    );
-  }
-
-  if (!bookDetails) return null;
+  if (!bookId) return null;
 
   return (
-    <div className="flex w-1/2 flex-col gap-6 overflow-hidden overflow-y-auto rounded-lg border border-gray-200 p-4 dark:border-gray-700 dark:bg-gray-800">
+    <div className="flex w-1/2 flex-col gap-6 overflow-hidden overflow-y-auto rounded-lg border border-gray-200 p-2 dark:border-gray-700 dark:bg-gray-800">
       {loading ? (
         <div className="flex flex-1 items-center justify-center">
           <Spinner size="xl" />
         </div>
       ) : (
         <>
+          <Button type="button" loading={loading} className="min-w-24" onClick={onRefresh}>
+            Refresh
+          </Button>
           <DetailsHeader title="Book Details" onClose={onClose} />
 
           <div className="flex flex-col gap-6">

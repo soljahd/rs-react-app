@@ -1,8 +1,9 @@
 import { useDispatch, useSelector } from 'react-redux';
+import Button from './Button';
 import Pagination from './Pagination';
 import Spinner from './Spinner';
 import { toggleBookSelection, selectSelectedBooks } from '../store/booksSlice';
-import type { Book } from '../api/api';
+import type { Book } from '../types';
 import type { ReactNode, ChangeEvent, MouseEvent } from 'react';
 
 type ResultsProps = {
@@ -16,6 +17,7 @@ type ResultsProps = {
   onBookSelect?: (bookId: string | null) => void;
   selectedBookId?: string | null;
   className?: string;
+  onRefresh: () => void;
 };
 
 function ResultsContainer({ children, className = '' }: { children: ReactNode; className?: string }) {
@@ -157,6 +159,7 @@ function Results({
   onBookSelect,
   selectedBookId,
   className,
+  onRefresh,
 }: ResultsProps) {
   const totalPages = Math.ceil(totalBooks / booksPerPage);
 
@@ -206,6 +209,9 @@ function Results({
 
   return (
     <ResultsContainer className={className}>
+      <Button type="button" loading={loading} className="min-w-24" onClick={onRefresh}>
+        Refresh
+      </Button>
       <BooksList books={books} onSelect={onBookSelect} selectedBookId={selectedBookId} />
       <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} siblingCount={1} />
     </ResultsContainer>

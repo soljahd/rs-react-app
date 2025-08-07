@@ -19,6 +19,8 @@ function Home() {
     handlePageChange,
     handleBookSelect,
     handleCloseDetails,
+    refetchSearchData,
+    refetchBookDetails,
   } = useBookManager();
 
   return (
@@ -26,7 +28,7 @@ function Home() {
       <div className="top-controls">
         <Search loading={isLoading} initialValue={query} onSearch={handleSearch} />
       </div>
-      <div className="results flex h-168 gap-4">
+      <div className="results flex h-188 gap-4">
         <Results
           loading={isLoading}
           error={error}
@@ -38,12 +40,15 @@ function Home() {
           onBookSelect={handleBookSelect}
           selectedBookId={bookId}
           className={`${bookId ? 'w-1/2' : 'w-full'} min-w-1/2`}
+          onRefresh={refetchSearchData}
         />
         <Outlet
           context={{
             bookDetails,
             loading: detailsLoading,
             onClose: handleCloseDetails,
+            bookId,
+            onRefresh: refetchBookDetails,
           }}
         />
         <SelectedBooksFlyout />

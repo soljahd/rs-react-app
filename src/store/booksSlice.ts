@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import type { Book } from '../api/api';
+import type { Book } from '../types';
 import type { PayloadAction } from '@reduxjs/toolkit';
 
 export type SelectedBook = {
@@ -43,10 +43,11 @@ export const selectedBooksSlice = createSlice({
       state.selectedBooks = [];
     },
   },
+  selectors: {
+    selectSelectedBooks: (state: SelectedBooksState) => state.selectedBooks,
+  },
 });
 
 export const { toggleBookSelection, clearSelectedBooks } = selectedBooksSlice.actions;
-
-export const selectSelectedBooks = (state: { selectedBooks: SelectedBooksState }) => state.selectedBooks.selectedBooks;
-
+export const { selectSelectedBooks } = selectedBooksSlice.selectors;
 export default selectedBooksSlice.reducer;

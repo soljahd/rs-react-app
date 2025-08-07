@@ -1,162 +1,75 @@
-import axios from 'axios';
-import { describe, beforeEach, it, expect, vi } from 'vitest';
-import { searchBooks, getBookDetails } from '../api/api';
-import type { SearchBooksResponse, Book, BookDetails } from '../api/api';
-import type { Mock } from 'vitest';
+import { configureStore } from '@reduxjs/toolkit';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { booksApi } from '../api/api';
 
-type MockedAxiosInstance = {
-  get: ReturnType<typeof vi.fn>;
-  interceptors: {
-    request: { use: Mock; eject: Mock };
-    response: { use: Mock; eject: Mock };
-  };
-};
-
-vi.mock('axios', () => {
-  const mockAxiosInstance: MockedAxiosInstance = {
-    get: vi.fn(),
-    interceptors: {
-      request: { use: vi.fn(), eject: vi.fn() },
-      response: { use: vi.fn(), eject: vi.fn() },
+const createTestStore = () =>
+  configureStore({
+    reducer: {
+      [booksApi.reducerPath]: booksApi.reducer,
     },
-  };
+    middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(booksApi.middleware),
+  });
 
-  return {
-    default: {
-      create: vi.fn(() => mockAxiosInstance),
-    },
-  };
-});
-
-const mockApiInstance = (axios.create as ReturnType<typeof vi.fn>)() as MockedAxiosInstance;
-
-describe('searchBooks', () => {
+describe('booksApi', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    vi.restoreAllMocks();
   });
 
-  it('should return books data on successful request', async () => {
-    const mockResponse: SearchBooksResponse = {
-      docs: [
-        {
-          key: '/works/OL1W',
-          title: 'Test Book',
-          author_name: ['Test Author'],
-          first_publish_year: 2023,
-        },
-      ],
-      numFound: 1,
-      offset: 0,
-      q: 'test',
-    };
+  it('searchBooks should returns mocked data', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(() =>
+        Promise.resolve(
+          new Response(
+            JSON.stringify({
+              numFound: 1,
+              start: 0,
+              docs: [{ title: 'Mock Book', key: 'OL99999W' }],
+            }),
+            {
+              status: 200,
+              headers: { 'Content-Type': 'application/json' },
+            },
+          ),
+        ),
+      ),
+    );
 
-    mockApiInstance.get.mockResolvedValueOnce({ data: mockResponse });
+    const store = createTestStore();
 
-    const result = await searchBooks('test');
-
-    expect(result).toEqual(mockResponse);
-    expect(mockApiInstance.get).toHaveBeenCalledWith('/search.json', {
-      params: {
-        q: 'test',
-        offset: 0,
-        limit: 10,
-      },
-    });
+    const result = await store.dispatch(booksApi.endpoints.searchBooks.initiate({ query: 'mock', page: 1, limit: 10 }));
+    expect(result.data).toBeDefined();
+    expect(result.data?.docs[0].title).toBe('Mock Book');
   });
 
-  it('should use "popular" as default query when empty string is provided', async () => {
-    const mockResponse: SearchBooksResponse = {
-      docs: [],
-      numFound: 0,
-    };
+  it('getBookDetails should returns mocked book details', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(() =>
+        Promise.resolve(
+          new Response(
+            JSON.stringify({
+              title: 'Mock Book Details',
+              description: 'Mocked description',
+            }),
+            {
+              status: 200,
+              headers: { 'Content-Type': 'application/json' },
+            },
+          ),
+        ),
+      ),
+    );
 
-    mockApiInstance.get.mockResolvedValueOnce({ data: mockResponse });
+    const store = createTestStore();
 
-    await searchBooks('');
+    const result = await store.dispatch(booksApi.endpoints.getBookDetails.initiate('12345'));
 
-    expect(mockApiInstance.get).toHaveBeenCalledWith('/search.json', {
-      params: {
-        q: 'popular',
-        offset: 0,
-        limit: 10,
-      },
-    });
-  });
+    if ('error' in result) {
+      console.error(result.error);
+    }
 
-  it('should handle error scenarios', async () => {
-    const errorMessage = 'Network Error';
-    mockApiInstance.get.mockRejectedValueOnce(new Error(errorMessage));
-
-    await expect(searchBooks('test')).rejects.toThrow(errorMessage);
-  });
-
-  it('should use custom offset and limit when provided', async () => {
-    const mockResponse: SearchBooksResponse = {
-      docs: [],
-      numFound: 0,
-    };
-
-    mockApiInstance.get.mockResolvedValueOnce({ data: mockResponse });
-
-    await searchBooks('test', 5, 20);
-
-    expect(mockApiInstance.get).toHaveBeenCalledWith('/search.json', {
-      params: {
-        q: 'test',
-        offset: 5,
-        limit: 20,
-      },
-    });
-  });
-
-  it('should return correct book data structure', async () => {
-    const mockBook: Book = {
-      key: '/works/OL2W',
-      title: 'Another Test Book',
-      author_name: ['Author 1', 'Author 2'],
-      first_publish_year: 2020,
-      publish_year: [2020, 2021],
-      cover_i: 12345,
-      edition_count: 3,
-      language: ['English'],
-      subject: ['Fiction', 'Science'],
-      isbn: ['1234567890'],
-      publisher: ['Test Publisher'],
-      ratings_average: 4.5,
-      ratings_count: 100,
-    };
-
-    const mockResponse: SearchBooksResponse = {
-      docs: [mockBook],
-      numFound: 1,
-    };
-
-    mockApiInstance.get.mockResolvedValueOnce({ data: mockResponse });
-
-    const result = await searchBooks('test');
-
-    expect(result.docs[0]).toEqual(mockBook);
-  });
-
-  it('should return book details for valid book ID', async () => {
-    const mockBookDetails: BookDetails = {
-      key: '/works/OL1W',
-      title: 'Test Book Details',
-      description: 'This is a test book description',
-      authors: [
-        { name: 'Author One', key: '/authors/A1' },
-        { name: 'Author Two', key: '/authors/A2' },
-      ],
-      covers: [12345, 67890],
-      first_publish_date: '2020-01-01',
-      subjects: ['Fiction', 'Science Fiction'],
-    };
-
-    mockApiInstance.get.mockResolvedValueOnce({ data: mockBookDetails });
-
-    const result = await getBookDetails('1W');
-
-    expect(result).toEqual(mockBookDetails);
-    expect(mockApiInstance.get).toHaveBeenCalledWith('/works/OL1W.json');
+    expect(result.data).toBeDefined();
+    expect(result.data?.title).toBe('Mock Book Details');
   });
 });

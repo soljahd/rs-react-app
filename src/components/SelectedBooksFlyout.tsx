@@ -1,7 +1,7 @@
 import { useDispatch, useSelector } from 'react-redux';
 import Button from './Button';
 import { selectSelectedBooks, clearSelectedBooks } from '../store/booksSlice';
-import downloadItemsAsCSV from '../utils/saveCSV';
+import generateCSVDownloadUrl from '../utils/saveCSV';
 
 function SelectedBooksFlyout() {
   const dispatch = useDispatch();
@@ -15,9 +15,7 @@ function SelectedBooksFlyout() {
     dispatch(clearSelectedBooks());
   };
 
-  const handleDownload = () => {
-    downloadItemsAsCSV(selectedBooks);
-  };
+  const { url, filename } = generateCSVDownloadUrl(selectedBooks);
 
   return (
     <div className="fixed right-4 bottom-4 rounded-lg border border-gray-200 bg-white p-4 shadow-lg dark:border-gray-700 dark:bg-gray-800 dark:shadow-gray-700/50">
@@ -28,7 +26,9 @@ function SelectedBooksFlyout() {
         <Button color="secondary" onClick={handleClearSelection}>
           Unselect all
         </Button>
-        <Button onClick={handleDownload}>Download</Button>
+        <a href={url} download={filename}>
+          <Button>Download</Button>
+        </a>
       </div>
     </div>
   );

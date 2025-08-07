@@ -1,4 +1,5 @@
 import Button from './Button';
+import { generatePaginationItems } from '../utils/pagination';
 import type { MouseEvent, ReactNode } from 'react';
 
 type PaginationProps = {
@@ -10,38 +11,6 @@ type PaginationProps = {
 
 function Pagination({ currentPage, totalPages, onPageChange, siblingCount = 1 }: PaginationProps) {
   if (totalPages <= 1) return null;
-
-  const range = (start: number, end: number): number[] => {
-    const length = end - start + 1;
-    return Array.from({ length }, (_, idx) => idx + start);
-  };
-
-  function generatePaginationItems(): (number | '...')[] {
-    const totalPageNumbers = siblingCount + 5;
-
-    if (totalPages <= totalPageNumbers) {
-      return range(1, totalPages);
-    }
-
-    const leftSiblingIndex = Math.max(currentPage - siblingCount, 1);
-    const rightSiblingIndex = Math.min(currentPage + siblingCount, totalPages);
-
-    const shouldShowLeftDots = leftSiblingIndex > 2;
-    const shouldShowRightDots = rightSiblingIndex < totalPages - 1;
-
-    if (!shouldShowLeftDots && shouldShowRightDots) {
-      const leftItemCount = 3 + 2 * siblingCount;
-      return [...range(1, leftItemCount), '...', totalPages];
-    }
-
-    if (shouldShowLeftDots && !shouldShowRightDots) {
-      const rightItemCount = 3 + 2 * siblingCount;
-      const rightRange = range(totalPages - rightItemCount + 1, totalPages);
-      return [1, '...', ...rightRange];
-    }
-
-    return [1, '...', ...range(leftSiblingIndex, rightSiblingIndex), '...', totalPages];
-  }
 
   const handlePageClick = (page: number | '...') => (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -79,7 +48,7 @@ function Pagination({ currentPage, totalPages, onPageChange, siblingCount = 1 }:
     );
   };
 
-  const paginationItems = generatePaginationItems();
+  const paginationItems = generatePaginationItems(currentPage, totalPages, siblingCount);
 
   return (
     <nav className="flex flex-wrap items-center justify-center gap-2 p-2" aria-label="Pagination">

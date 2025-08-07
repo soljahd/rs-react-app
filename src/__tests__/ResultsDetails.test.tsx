@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { useOutletContext } from 'react-router-dom';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { ResultsDetails } from '../components';
-import type { BookDetails } from '../api/api';
+import type { BookDetails } from '../types';
 
 vi.mock('react-router-dom', () => ({
   useOutletContext: vi.fn(),
@@ -30,6 +30,7 @@ describe('ResultsDetails Component', () => {
     bookDetails: mockBookDetails,
     loading: false,
     onClose: vi.fn(),
+    bookId: '123W',
   };
 
   beforeEach(() => {
@@ -41,6 +42,7 @@ describe('ResultsDetails Component', () => {
       bookDetails: null,
       loading: true,
       onClose: vi.fn(),
+      bookId: '123W',
     });
 
     render(<ResultsDetails />);
