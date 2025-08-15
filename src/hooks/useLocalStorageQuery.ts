@@ -4,8 +4,11 @@ export const useLocalStorageQuery = (key: string) => {
   const initialValue = '';
 
   const [query, setQuery] = useState(() => {
-    const storedValue = localStorage.getItem(key);
-    return storedValue !== null ? storedValue : initialValue;
+    if (typeof window !== 'undefined') {
+      const storedValue = localStorage.getItem(key);
+      return storedValue !== null ? storedValue : initialValue;
+    }
+    return initialValue;
   });
 
   useEffect(() => {

@@ -1,5 +1,5 @@
-import { Link } from 'react-router-dom';
-import Button from './Button';
+import Link from 'next/link';
+import Button from '@/components/Button';
 
 function NotFoundPage() {
   return (
@@ -11,7 +11,7 @@ function NotFoundPage() {
           Looks like you&apos;ve gotten lost in digital space. Let&apos;s get you back on track.
         </p>
 
-        <Link to="/">
+        <Link href="/">
           <Button color="primary" size="md">
             Return to Homepage
           </Button>

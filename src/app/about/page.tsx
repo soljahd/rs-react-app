@@ -1,3 +1,5 @@
+import Image from 'next/image';
+
 type LinkItemProps = {
   label: string;
   text: string;
@@ -26,11 +28,12 @@ function ProfileCard() {
       <div className="flex flex-col md:flex-row">
         <div className="flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100 p-6 md:flex-shrink-0 dark:from-blue-900/30 dark:to-blue-800/30">
           <div className="relative h-48 w-48 overflow-hidden rounded-full border-4 border-blue-500 shadow-md dark:border-blue-400">
-            <img
+            <Image
+              width={200}
+              height={200}
               src="/soljahd.jpg"
               alt="Dzmitry Solahub"
               className="h-full w-full object-cover transition-transform hover:scale-105"
-              loading="lazy"
             />
           </div>
         </div>
@@ -52,7 +55,9 @@ function ProfileCard() {
           <hr className="dark:border-gray-700" />
           <div className="flex items-center gap-4">
             <a href="https://rs.school/courses/reactjs" target="_blank" rel="noopener noreferrer">
-              <img
+              <Image
+                width={64}
+                height={64}
                 src="./rss-logo.svg"
                 alt="RS School"
                 className="h-16 w-16 transition-transform hover:scale-105 dark:invert"
