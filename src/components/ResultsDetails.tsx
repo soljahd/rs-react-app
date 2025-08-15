@@ -1,16 +1,7 @@
-import { useOutletContext } from 'react-router-dom';
+import { useBookDetails } from '@/app/main/layout';
 import Button from './Button';
 import Spinner from './Spinner';
-import type { BookDetails } from '../types';
 import type { ReactNode } from 'react';
-
-type OutletContext = {
-  bookDetails: BookDetails;
-  loading: boolean;
-  bookId: string | null;
-  onClose: () => void;
-  onRefresh: () => void;
-};
 
 const CloseButton = ({ onClose }: { onClose: () => void }) => (
   <button
@@ -49,7 +40,9 @@ const TagList = ({ tags }: { tags: string[] }) => (
 );
 
 function ResultsDetails() {
-  const { bookDetails, loading, onClose, bookId, onRefresh } = useOutletContext<OutletContext>();
+  const { bookDetails, loading, onClose, bookId, onRefresh } = useBookDetails();
+
+  if (!bookDetails) return null;
 
   const getDescription = () => {
     if (!bookDetails.description) return 'No description available';

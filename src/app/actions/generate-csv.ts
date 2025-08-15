@@ -1,6 +1,10 @@
-import type { SelectedBook } from '../store/booksSlice';
+'use server';
 
-function generateCSVDownloadUrl(items: SelectedBook[]) {
+import type { SelectedBook } from '@/store/booksSlice';
+
+export async function generateCSVDownload(items: SelectedBook[]) {
+  await Promise.resolve();
+
   const headers = ['Title', 'Author', 'First Published'];
   const rows = items.map((item) => [
     `"${item.title.replace(/"/g, '""')}"`,
@@ -10,13 +14,8 @@ function generateCSVDownloadUrl(items: SelectedBook[]) {
 
   const csvContent = [headers.join(','), ...rows.map((row) => row.join(','))].join('\n');
 
-  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-
   const itemCount = items.length;
   const filename = `${itemCount.toString()}_item${itemCount !== 1 ? 's' : ''}.csv`;
 
-  return { url, filename };
+  return { csvContent, filename };
 }
-
-export default generateCSVDownloadUrl;
