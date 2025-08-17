@@ -1,5 +1,3 @@
-'use client';
-
 import ResultsDetails from '@/components/ResultsDetails';
 
 function Home() {

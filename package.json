@@ -14,7 +14,6 @@
     "prepare": "husky"
   },
   "dependencies": {
-    "@next/eslint-plugin-next": "^15.4.6",
     "@reduxjs/toolkit": "^2.8.2",
     "@tailwindcss/postcss": "^4.1.12",
     "next": "^15.4.6",
@@ -30,6 +29,7 @@
     "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.1",
     "@eslint/js": "^9.30.1",
+    "@next/eslint-plugin-next": "^15.4.6",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
     "eslint": "^9.30.1",

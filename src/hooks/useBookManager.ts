@@ -1,5 +1,3 @@
-'use client';
-
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';

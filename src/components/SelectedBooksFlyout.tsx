@@ -1,5 +1,3 @@
-'use client';
-
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
