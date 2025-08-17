@@ -1,6 +1,6 @@
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { useSearchParams } from 'react-router-dom';
 import { useLocalStorageQuery } from './useLocalStorageQuery';
 import { useSearchBooksQuery, useGetBookDetailsQuery, booksApi } from '../api/api';
 import type { SerializedError } from '@reduxjs/toolkit';
@@ -10,15 +10,20 @@ export const ITEMS_PER_PAGE = 4;
 
 export const useBookManager = () => {
   const [query, setQuery] = useLocalStorageQuery('searchQuery');
-  const [searchParams, setSearchParams] = useSearchParams();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+
   const currentPage = parseInt(searchParams.get('page') || '1', 10);
   const bookId = searchParams.get('details');
 
   useEffect(() => {
     if (!searchParams.has('page')) {
-      setSearchParams({ page: '1' });
+      const params = new URLSearchParams(searchParams.toString());
+      params.set('page', '1');
+      router.replace(`${pathname}?${params.toString()}`);
     }
-  }, [searchParams, setSearchParams]);
+  }, [searchParams, router, pathname]);
 
   const {
     data: searchData,
@@ -39,37 +44,33 @@ export const useBookManager = () => {
   const handleSearch = (newQuery: string) => {
     dispatch(booksApi.util.invalidateTags(['BookList', 'Book']));
     setQuery(newQuery);
-    setSearchParams((prev) => {
-      prev.set('page', '1');
-      prev.delete('details');
-      return prev;
-    });
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('page', '1');
+    params.delete('details');
+    router.push(`${pathname}?${params.toString()}`);
   };
 
   const handlePageChange = (page: number) => {
-    setSearchParams((prev) => {
-      prev.set('page', page.toString());
-      prev.delete('details');
-      return prev;
-    });
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('page', page.toString());
+    params.delete('details');
+    router.push(`${pathname}?${params.toString()}`);
   };
 
   const handleBookSelect = (id: string | null) => {
-    setSearchParams((prev) => {
-      if (id) {
-        prev.set('details', id);
-      } else {
-        prev.delete('details');
-      }
-      return prev;
-    });
+    const params = new URLSearchParams(searchParams.toString());
+    if (id) {
+      params.set('details', id);
+    } else {
+      params.delete('details');
+    }
+    router.push(`${pathname}?${params.toString()}`);
   };
 
   const handleCloseDetails = () => {
-    setSearchParams((prev) => {
-      prev.delete('details');
-      return prev;
-    });
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete('details');
+    router.push(`${pathname}?${params.toString()}`);
   };
 
   const parseError = (error: FetchBaseQueryError | SerializedError | undefined): string | null => {

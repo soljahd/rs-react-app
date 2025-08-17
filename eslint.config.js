@@ -4,11 +4,11 @@ import prettier from 'eslint-plugin-prettier/recommended';
 import react from 'eslint-plugin-react';
 import reactCompiler from 'eslint-plugin-react-compiler';
 import reactHooks from 'eslint-plugin-react-hooks';
-import reactRefresh from 'eslint-plugin-react-refresh';
 import tseslint from 'typescript-eslint';
 import { globalIgnores } from 'eslint/config';
 import { createTypeScriptImportResolver } from 'eslint-import-resolver-typescript';
 import { importX } from 'eslint-plugin-import-x';
+import nextPlugin from '@next/eslint-plugin-next';
 
 export default tseslint.config([
   globalIgnores(['dist']),
@@ -27,6 +27,9 @@ export default tseslint.config([
       ],
     },
     files: ['**/*.{ts,tsx}'],
+    plugins: {
+      '@next/next': nextPlugin,
+    },
     extends: [
       importX.flatConfigs.recommended,
       js.configs.recommended,
@@ -35,18 +38,22 @@ export default tseslint.config([
       react.configs.flat['jsx-runtime'],
       reactCompiler.configs.recommended,
       reactHooks.configs['recommended-latest'],
-      reactRefresh.configs.vite,
     ],
     languageOptions: {
       ecmaVersion: 2020,
       globals: globals.browser,
       parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        projectService: true,
+        project: ['./tsconfig.json'],
         tsconfigRootDir: import.meta.dirname,
       },
     },
     linterOptions: {
       noInlineConfig: true,
+    },
+    rules: {
+      ...nextPlugin.configs.recommended.rules,
+      ...nextPlugin.configs['core-web-vitals'].rules,
     },
     rules: {
       '@typescript-eslint/consistent-type-assertions': ['error', { assertionStyle: 'never' }],

@@ -1,3 +1,4 @@
+import { useTranslations } from 'next-intl';
 import { useDispatch, useSelector } from 'react-redux';
 import Button from './Button';
 import Pagination from './Pagination';
@@ -48,9 +49,10 @@ function ErrorState({ error }: { error: string }) {
 }
 
 function EmptyState() {
+  const t = useTranslations('results');
   return (
     <p role="status" className="results_content text-gray-500 dark:text-gray-400">
-      No books found. Try another search.
+      {t('empty')}
     </p>
   );
 }
@@ -64,11 +66,13 @@ function BooksList({
   onSelect?: (bookId: string | null) => void;
   selectedBookId?: string | null;
 }) {
+  const t = useTranslations('results');
+
   return (
     <div role="list" aria-label="List of books" className="results_content flex w-full flex-wrap gap-2">
       <div role="presentation" className="results_item flex w-full rounded-lg bg-gray-100 p-2 text-xl dark:bg-gray-700">
-        <h3 className="results_item-title flex w-1/2 font-medium dark:text-white">Title</h3>
-        <h3 className="results_item-description flex w-1/2 font-medium dark:text-white">Description</h3>
+        <h3 className="results_item-title flex w-1/2 font-medium dark:text-white">{t('title')}</h3>
+        <h3 className="results_item-description flex w-1/2 font-medium dark:text-white">{t('description')}</h3>
       </div>
       {books.map((book) => (
         <BookItem
@@ -93,6 +97,7 @@ function BookItem({
 }) {
   const dispatch = useDispatch();
   const selectedBooks = useSelector(selectSelectedBooks);
+  const t = useTranslations('results');
 
   const bookId = book.key.replace('/works/OL', '');
   const isChecked = selectedBooks.some((b) => b.id === bookId);
@@ -133,12 +138,12 @@ function BookItem({
       <div className="flex w-6/12 text-gray-600 dark:text-gray-300">
         <ul className="flex flex-col gap-1">
           <li className="flex gap-2">
-            <span className="font-semibold">Author:</span>
-            <span>{book.author_name?.join(', ') || 'Unknown author'}</span>
+            <span className="font-semibold">{t('author')}</span>
+            <span>{book.author_name?.join(', ') || t('unknownAuthor')}</span>
           </li>
           {book.first_publish_year && (
             <li className="flex gap-2">
-              <span className="font-semibold">First published:</span>
+              <span className="font-semibold">{t('firstPublished')}</span>
               <span>{book.first_publish_year}</span>
             </li>
           )}
@@ -161,6 +166,7 @@ function Results({
   className,
   onRefresh,
 }: ResultsProps) {
+  const t = useTranslations('results');
   const totalPages = Math.ceil(totalBooks / booksPerPage);
 
   const handlePageChange = (page: number) => {
@@ -210,7 +216,7 @@ function Results({
   return (
     <ResultsContainer className={className}>
       <Button type="button" loading={loading} className="min-w-24" onClick={onRefresh}>
-        Refresh
+        {t('refresh')}
       </Button>
       <BooksList books={books} onSelect={onBookSelect} selectedBookId={selectedBookId} />
       <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} siblingCount={1} />

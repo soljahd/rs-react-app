@@ -1,0 +1,66 @@
+{
+  "Header": {
+    "main": "Main",
+    "about": "About"
+  },
+  "SelectedBooksFlyout": {
+    "selectedBooks": "{count} book(s) selected",
+    "unselectAll": "Unselect all",
+    "download": "Download",
+    "generating": "Generating..."
+  },
+  "NotFoundPage": {
+    "return home": "Return to Homepage",
+    "404": "404 - Page Not Found",
+    "404 message": "Looks like you've gotten lost in digital space. Let's get you back on track."
+  },
+  "search": {
+    "label": "Search",
+    "placeholder": "Enter book title or author...",
+    "button": "Search"
+  },
+  "results": {
+    "title": "Title",
+    "description": "Description",
+    "empty": "No books found. Try another search.",
+    "author": "Author:",
+    "unknownAuthor": "Unknown author",
+    "firstPublished": "First published:",
+    "refresh": "Refresh"
+  },
+  "details": {
+    "close": "Close details",
+    "noDescription": "No description available",
+    "refresh": "Refresh",
+    "header": "Book Details",
+    "authors": "Authors",
+    "firstPublished": "First Published",
+    "description": "Description",
+    "subjects": "Subjects"
+  },
+  "about": {
+    "title": "About Author",
+    "profile": {
+      "position": "Frontend Developer",
+      "name": "Dzmitry Solahub",
+      "description": "Frontend developer from Mogilev, Belarus with experience in React and TypeScript. Currently working as a design engineer developing boards for electronic transport control units.",
+      "links": {
+        "address": {
+          "label": "Address:",
+          "text": "Mogilev, Belarus"
+        },
+        "email": {
+          "label": "Email:",
+          "text": "moskuitoz@gmail.com"
+        },
+        "github": {
+          "label": "GitHub:",
+          "text": "@soljahd"
+        }
+      },
+      "course": {
+        "text": "This project was created as part of the RS School React course"
+      }
+    }
+  }
+}

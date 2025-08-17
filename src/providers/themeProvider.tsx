@@ -1,11 +1,16 @@
+'use client';
+
 import { useState, useEffect } from 'react';
-import { ThemeContext } from '../context/themeContext';
+import { ThemeContext } from '@/context/themeContext';
 import type { ReactNode } from 'react';
 
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   const [isDarkMode, setIsDarkMode] = useState(() => {
-    const savedTheme = localStorage.getItem('theme');
-    return savedTheme ? savedTheme === 'dark' : false;
+    if (typeof window !== 'undefined') {
+      const savedTheme = localStorage.getItem('theme');
+      return savedTheme ? savedTheme === 'dark' : false;
+    }
+    return false;
   });
 
   useEffect(() => {
