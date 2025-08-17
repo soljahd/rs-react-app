@@ -12,14 +12,14 @@ export const ThemeToggle = () => {
       <Image
         width={24}
         height={24}
-        src="./moon.svg"
+        src="/moon.svg"
         alt="moon"
         className={`absolute top-1/2 left-1 h-6 w-6 -translate-y-1/2`}
       />
       <Image
         width={24}
         height={24}
-        src="./sun.svg"
+        src="/sun.svg"
         alt="sun"
         className={`absolute top-1/2 right-1 h-6 w-6 -translate-y-1/2`}
       />

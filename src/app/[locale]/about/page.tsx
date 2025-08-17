@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import { useTranslations } from 'next-intl';
 
 type LinkItemProps = {
   label: string;
@@ -23,6 +24,9 @@ function LinkItem({ label, text, href }: LinkItemProps) {
 }
 
 function ProfileCard() {
+  const t = useTranslations('about.profile');
+  const links = useTranslations('about.profile.links');
+
   return (
     <div className="overflow-hidden rounded-xl bg-white shadow-lg transition-all hover:shadow-xl dark:bg-gray-800 dark:hover:shadow-gray-700/50">
       <div className="flex flex-col md:flex-row">
@@ -39,18 +43,19 @@ function ProfileCard() {
         </div>
         <div className="flex flex-col gap-4 p-8">
           <div className="text-sm font-semibold tracking-wide text-blue-600 uppercase dark:text-blue-400">
-            Frontend Developer
+            {t('position')}
           </div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Dzmitry Solahub</h2>
-          <p className="text-gray-600 dark:text-gray-300">
-            Frontend developer from Mogilev, Belarus with experience in React and TypeScript. Currently working as a
-            design engineer developing boards for electronic transport control units.
-          </p>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{t('name')}</h2>
+          <p className="text-gray-600 dark:text-gray-300">{t('description')}</p>
 
           <div className="flex flex-col gap-3">
-            <LinkItem label="Address:" text="Mogilev, Belarus" href="https://maps.google.com/?q=Mogilev,Belarus" />
-            <LinkItem label="Email:" text="moskuitoz@gmail.com" href="mailto:moskuitoz@gmail.com" />
-            <LinkItem label="GitHub:" text="@soljahd" href="https://github.com/soljahd" />
+            <LinkItem
+              label={links('address.label')}
+              text={links('address.text')}
+              href="https://maps.google.com/?q=Mogilev,Belarus"
+            />
+            <LinkItem label={links('email.label')} text={links('email.text')} href="mailto:moskuitoz@gmail.com" />
+            <LinkItem label={links('github.label')} text={links('github.text')} href="https://github.com/soljahd" />
           </div>
           <hr className="dark:border-gray-700" />
           <div className="flex items-center gap-4">
@@ -58,14 +63,12 @@ function ProfileCard() {
               <Image
                 width={64}
                 height={64}
-                src="./rss-logo.svg"
+                src="/rss-logo.svg"
                 alt="RS School"
                 className="h-16 w-16 transition-transform hover:scale-105 dark:invert"
               />
             </a>
-            <p className="text-gray-600 dark:text-gray-300">
-              This project was created as part of the RS School React course
-            </p>
+            <p className="text-gray-600 dark:text-gray-300">{t('course.text')}</p>
           </div>
         </div>
       </div>
@@ -74,10 +77,12 @@ function ProfileCard() {
 }
 
 function About() {
+  const t = useTranslations('about');
+
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-12">
       <div className="flex flex-col items-center gap-4">
-        <h1 className="text-3xl font-extrabold text-gray-900 sm:text-4xl dark:text-white">About Author</h1>
+        <h1 className="text-3xl font-extrabold text-gray-900 sm:text-4xl dark:text-white">{t('title')}</h1>
         <div className="h-1 w-20 rounded-full bg-blue-600 dark:bg-blue-500"></div>
       </div>
       <ProfileCard />

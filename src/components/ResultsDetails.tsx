@@ -1,19 +1,25 @@
-import { useBookDetails } from '@/app/main/layout';
+'use client';
+
+import { useTranslations } from 'next-intl';
+import { useBookDetails } from '@/app/[locale]/main/layout';
 import Button from './Button';
 import Spinner from './Spinner';
 import type { ReactNode } from 'react';
 
-const CloseButton = ({ onClose }: { onClose: () => void }) => (
-  <button
-    onClick={onClose}
-    className="rounded-full p-2 hover:cursor-pointer hover:bg-gray-200 dark:text-white dark:hover:bg-gray-600"
-    aria-label="Close details"
-  >
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-    </svg>
-  </button>
-);
+const CloseButton = ({ onClose }: { onClose: () => void }) => {
+  const t = useTranslations('details');
+  return (
+    <button
+      onClick={onClose}
+      className="rounded-full p-2 hover:cursor-pointer hover:bg-gray-200 dark:text-white dark:hover:bg-gray-600"
+      aria-label={t('close')}
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+  );
+};
 
 const DetailsHeader = ({ title, onClose }: { title: string; onClose: () => void }) => (
   <div className="flex items-center justify-between gap-4">
@@ -41,13 +47,14 @@ const TagList = ({ tags }: { tags: string[] }) => (
 
 function ResultsDetails() {
   const { bookDetails, loading, onClose, bookId, onRefresh } = useBookDetails();
+  const t = useTranslations('details');
 
   if (!bookDetails) return null;
 
   const getDescription = () => {
-    if (!bookDetails.description) return 'No description available';
+    if (!bookDetails.description) return t('noDescription');
     if (typeof bookDetails.description === 'string') return bookDetails.description;
-    return bookDetails.description.value || 'No description available';
+    return bookDetails.description.value || t('noDescription');
   };
 
   if (!bookId) return null;
@@ -61,34 +68,34 @@ function ResultsDetails() {
       ) : (
         <>
           <Button type="button" loading={loading} className="min-w-24" onClick={onRefresh}>
-            Refresh
+            {t('refresh')}
           </Button>
-          <DetailsHeader title="Book Details" onClose={onClose} />
+          <DetailsHeader title={t('header')} onClose={onClose} />
 
           <div className="flex flex-col gap-6">
             <h1 className="text-3xl font-bold dark:text-white">{bookDetails.title}</h1>
 
             <div className="flex flex-col gap-6">
               {bookDetails.authors && (
-                <DetailSection title="Authors">
+                <DetailSection title={t('authors')}>
                   <p className="dark:text-gray-300">{bookDetails.authors.map((a) => a.name).join(', ')}</p>
                 </DetailSection>
               )}
 
               {bookDetails.first_publish_date && (
-                <DetailSection title="First Published">
+                <DetailSection title={t('firstPublished')}>
                   <p className="dark:text-gray-300">{bookDetails.first_publish_date}</p>
                 </DetailSection>
               )}
 
-              <DetailSection title="Description">
+              <DetailSection title={t('description')}>
                 <p className="overflow-hidden overflow-ellipsis whitespace-pre-line dark:text-gray-300">
                   {getDescription()}
                 </p>
               </DetailSection>
 
               {bookDetails.subjects && (
-                <DetailSection title="Subjects">
+                <DetailSection title={t('subjects')}>
                   <TagList tags={bookDetails.subjects} />
                 </DetailSection>
               )}
