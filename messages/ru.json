@@ -4,7 +4,7 @@
     "about": "Об авторе"
   },
   "SelectedBooksFlyout": {
-    "selectedBooks": "Выбрано {count} книг",
+    "selectedBooks": "Выбрано книг: {count}",
     "unselectAll": "Снять все",
     "download": "Скачать",
     "generating": "Генерация..."
