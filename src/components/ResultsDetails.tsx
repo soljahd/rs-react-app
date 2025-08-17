@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { useBookDetails } from '@/app/[locale]/main/layout';
+import { useBookDetails } from '@/hooks/useBookDetails';
 import Button from './Button';
 import Spinner from './Spinner';
 import type { ReactNode } from 'react';

@@ -1,29 +1,11 @@
 'use client';
 
-import { ReactNode, createContext, useContext } from 'react';
+import { ReactNode } from 'react';
 import Results from '@/components/Results';
 import Search from '@/components/Search';
 import SelectedBooksFlyout from '@/components/SelectedBooksFlyout';
 import { useBookManager, ITEMS_PER_PAGE } from '@/hooks/useBookManager';
-import { BookDetails } from '@/types';
-
-type BookDetailsContextType = {
-  bookDetails: BookDetails | undefined;
-  loading: boolean;
-  bookId: string | null;
-  onClose: () => void;
-  onRefresh: () => void;
-};
-
-const BookDetailsContext = createContext<BookDetailsContextType | null>(null);
-
-export function useBookDetails() {
-  const context = useContext(BookDetailsContext);
-  if (!context) {
-    throw new Error('useBookDetails must be used within a HomeLayout');
-  }
-  return context;
-}
+import { BookDetailsProvider } from '@/providers/bookDetailsProvider';
 
 export default function HomeLayout({ children }: { children: ReactNode }) {
   const {
@@ -45,7 +27,7 @@ export default function HomeLayout({ children }: { children: ReactNode }) {
   } = useBookManager();
 
   return (
-    <BookDetailsContext.Provider
+    <BookDetailsProvider
       value={{
         bookDetails,
         bookId,
@@ -76,6 +58,6 @@ export default function HomeLayout({ children }: { children: ReactNode }) {
           <SelectedBooksFlyout />
         </div>
       </div>
-    </BookDetailsContext.Provider>
+    </BookDetailsProvider>
   );
 }
