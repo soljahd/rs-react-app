@@ -3,6 +3,12 @@
     "main": "Main",
     "about": "About"
   },
+  "SelectedBooksFlyout": {
+    "selectedBooks": "{count} book(s) selected",
+    "unselectAll": "Unselect all",
+    "download": "Download",
+    "generating": "Generating..."
+  },
   "NotFoundPage": {
     "return home": "Return to Homepage",
     "404": "404 - Page Not Found",

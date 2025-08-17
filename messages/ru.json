@@ -3,6 +3,12 @@
     "main": "Главная",
     "about": "Об авторе"
   },
+  "SelectedBooksFlyout": {
+    "selectedBooks": "Выбрано {count} книг",
+    "unselectAll": "Снять все",
+    "download": "Скачать",
+    "generating": "Генерация..."
+  },
   "NotFoundPage": {
     "return home": "На домашнюю",
     "404": "404 — Страница не найдена",
