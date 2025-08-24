@@ -16,7 +16,7 @@ export const formSchema = z
       .regex(/[a-z]/, 'At least 1 lowercase')
       .regex(/[0-9]/, 'At least 1 number')
       .regex(/[^a-zA-Z0-9]/, 'At least 1 special character'),
-    confirmPassword: z.string(),
+    confirmPassword: z.string().min(1, 'Please repeat password'),
     gender: z.enum(['male', 'female']),
     country: z.string().min(1, 'Country is required'),
     terms: z.boolean().refine((val) => val, {

@@ -25,11 +25,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(({ label, error, id, clas
         {label}
       </label>
       <input id={id} ref={ref} className={inputClasses} {...rest} />
-      {error && (
-        <div className="h-5">
-          <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
-        </div>
-      )}
+      <div className="h-5">{error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}</div>
     </div>
   );
 });

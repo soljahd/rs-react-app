@@ -7,7 +7,7 @@ import Input from './Input';
 import PasswordStrength from './PasswordStrength';
 import Select from './Select';
 import { formSchema } from '../schemas/formSchema';
-import { countries } from '../utils/countries';
+import { useFormStore } from '../store/formStore';
 import { validateImage, fileToBase64 } from '../utils/image';
 import type { FormSchema } from '../schemas/formSchema';
 import type { ChangeEvent } from 'react';
@@ -15,6 +15,8 @@ import type { ChangeEvent } from 'react';
 function ControlledForm({ onClose }: { onClose: () => void }) {
   const [preview, setPreview] = useState<string | undefined>();
   const [imageError, setImageError] = useState<string | null>(null);
+
+  const { addControlledForm, countries } = useFormStore();
 
   const {
     register,
@@ -28,7 +30,7 @@ function ControlledForm({ onClose }: { onClose: () => void }) {
   });
 
   const onSubmit = (data: FormSchema) => {
-    console.log(data);
+    addControlledForm(data);
     onClose();
   };
 
@@ -112,11 +114,9 @@ function ControlledForm({ onClose }: { onClose: () => void }) {
           onChange={(event) => void handleImageChange(event)}
           className="block w-full text-sm text-gray-500 file:mr-4 file:rounded-full file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-blue-700 hover:file:bg-blue-100"
         />
-        {imageError && (
-          <div className="h-5">
-            <p className="text-sm text-red-600">{imageError}</p>
-          </div>
-        )}
+
+        <div className="h-5">{imageError && <p className="text-sm text-red-600">{imageError}</p>}</div>
+
         <div className="h-5" />
         {preview && <img src={preview} alt="Preview" className="h-24 w-24 rounded-xl border object-cover" />}
       </div>

@@ -70,11 +70,7 @@ function Autocomplete({
         role="combobox"
       />
 
-      {error && (
-        <div className="h-5">
-          <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
-        </div>
-      )}
+      <div className="h-5">{error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}</div>
 
       {open && items.length > 0 && (
         <ul
