@@ -22,9 +22,12 @@ export const formSchema = z
     terms: z.boolean().refine((val) => val, {
       message: 'You must accept T&C',
     }),
-    image: z.string().refine((val) => !val || val.length > 0, {
-      message: 'Please provide a valid image',
-    }),
+    image: z
+      .string()
+      .min(1, 'Please select image')
+      .refine((val) => !val || val.length > 0, {
+        message: 'Please provide a valid image',
+      }),
   })
   .superRefine((data, ctx) => {
     if (data.password !== data.confirmPassword) {
