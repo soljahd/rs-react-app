@@ -1,36 +1,54 @@
 import { useState } from 'react';
-import reactLogo from './assets/react.svg';
-import viteLogo from './assets/vite.svg';
-import './App.css';
+import Button from './components/Button';
+import ControlledForm from './components/ControlledForm';
+import Modal from './components/Modal';
+import UncontrolledForm from './components/UncontrolledForm';
 
 function App() {
-  const [count, setCount] = useState(0);
-
+  const [isModalOpen, setModalIsOpen] = useState<null | 'controlled' | 'uncontrolled'>(null);
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank" rel="noreferrer">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank" rel="noreferrer">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button
+    <div className="flex min-h-screen flex-col items-center gap-5 p-8">
+      <h1 className="text-3xl font-bold">React Forms</h1>
+
+      <div className="flex gap-4">
+        <Button
           onClick={() => {
-            setCount((count) => count + 1);
+            setModalIsOpen('uncontrolled');
           }}
         >
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
+          Open Uncontrolled Form
+        </Button>
+        <Button
+          onClick={() => {
+            setModalIsOpen('controlled');
+          }}
+        >
+          Open Controlled Form
+        </Button>
       </div>
-      <p className="read-the-docs">Click on the Vite and React logos to learn more</p>
-    </>
+
+      <Modal
+        isOpen={!!isModalOpen}
+        onClose={() => {
+          setModalIsOpen(null);
+        }}
+        title={isModalOpen === 'controlled' ? 'Controlled Form' : 'Uncontrolled Form'}
+      >
+        {isModalOpen === 'controlled' ? (
+          <ControlledForm
+            onClose={() => {
+              setModalIsOpen(null);
+            }}
+          />
+        ) : (
+          <UncontrolledForm
+            onClose={() => {
+              setModalIsOpen(null);
+            }}
+          />
+        )}
+      </Modal>
+    </div>
   );
 }
 
