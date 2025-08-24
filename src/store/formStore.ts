@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { countries as allCountries } from '../utils/countries';
 import type { FormSchema } from '../schemas/formSchema';
 
-type Store = {
+export type Store = {
   controlledForms: (FormSchema & { _new?: boolean })[];
   uncontrolledForms: (FormSchema & { _new?: boolean })[];
   countries: string[];
