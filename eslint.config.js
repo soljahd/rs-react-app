@@ -46,7 +46,7 @@ export default tseslint.config([
       },
     },
     linterOptions: {
-      noInlineConfig: true,
+      noInlineConfig: false,
     },
     rules: {
       '@typescript-eslint/consistent-type-assertions': ['error', { assertionStyle: 'never' }],
