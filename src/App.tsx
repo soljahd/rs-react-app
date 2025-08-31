@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import Button from './components/Button';
 import ColumnSelectorModal from './components/ColumnSelectorModal';
 import CountryList from './components/CountryList';
 import { createDataResource } from './data/resource';
 import type { CountryEntry, YearData } from './types/dataTypes';
+import type { ChangeEvent } from 'react';
 
 const DATA_URL = '/owid-co2-data.json';
 const resource = createDataResource(DATA_URL);
@@ -13,7 +14,7 @@ const additionalColumns = ['methane', 'oil_co2', 'gas_co2', 'coal_co2', 'tempera
 function App() {
   const data = resource.read();
 
-  const countries = () => {
+  const countries = useMemo(() => {
     return Object.entries(data).map(([countryName, entry]) => {
       const country = entry as CountryEntry;
       const name = countryName;
@@ -23,30 +24,30 @@ function App() {
       const latestPopulation = population ? population.toLocaleString() : 'N/A';
       return { name, iso, latestPopulation, years };
     });
-  };
+  }, [data]);
 
-  const allYears = () => {
+  const allYears = useMemo(() => {
     const set = new Set<number>();
-    countries().forEach((country) => {
+    countries.forEach((country) => {
       country.years.forEach((yearData: YearData) => {
         if (yearData.year) set.add(yearData.year);
       });
     });
     return Array.from(set).sort((a, b) => a - b);
-  };
+  }, [countries]);
 
-  const [selectedYear, setSelectedYear] = useState<number>(allYears()[allYears().length - 1]);
+  const [selectedYear, setSelectedYear] = useState<number>(allYears[allYears.length - 1]);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'name' | 'population'>('population');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedColumns, setSelectedColumns] = useState<string[]>([]);
 
-  const handleSearch = (query: string) => {
+  const handleSearch = useCallback((query: string) => {
     setSearchQuery(query);
-  };
+  }, []);
 
-  const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleSortChange = useCallback((e: ChangeEvent<HTMLSelectElement>) => {
     const value = e.target.value;
 
     if (value === 'name-asc' || value === 'name-desc') {
@@ -56,19 +57,19 @@ function App() {
       setSortBy('population');
       setSortDirection(value === 'population-asc' ? 'asc' : 'desc');
     }
-  };
+  }, []);
 
-  const handleYearChange = (year: number) => {
+  const handleYearChange = useCallback((year: number) => {
     setSelectedYear(year);
-  };
+  }, []);
 
-  const toggleModal = () => {
+  const toggleModal = useCallback(() => {
     setIsModalOpen((isOpen) => !isOpen);
-  };
+  }, []);
 
-  const handleColumnsChange = (columns: string[]) => {
+  const handleColumnsChange = useCallback((columns: string[]) => {
     setSelectedColumns(columns);
-  };
+  }, []);
 
   const currentSortValue = `${sortBy}-${sortDirection}`;
 
@@ -84,7 +85,7 @@ function App() {
               handleYearChange(Number(e.target.value));
             }}
           >
-            {allYears().map((year) => (
+            {allYears.map((year) => (
               <option key={year} value={year}>
                 {year}
               </option>
@@ -113,7 +114,7 @@ function App() {
       </div>
 
       <CountryList
-        countries={countries()}
+        countries={countries}
         selectedYear={selectedYear}
         searchQuery={searchQuery}
         sortBy={sortBy}

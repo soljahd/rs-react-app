@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { memo, useMemo, useState, useCallback } from 'react';
 import Button from './Button';
 import { COLUMN_LABELS } from '../types/dataTypes';
 import type { Country, YearData } from '../types/dataTypes';
@@ -16,7 +16,7 @@ const formatValue = (value: number | undefined): string => {
   return 'N/A';
 };
 
-function TableHeaders({ selectedColumns }: { selectedColumns: string[] }) {
+const TableHeaders = memo(function TableHeaders({ selectedColumns }: { selectedColumns: string[] }) {
   return (
     <>
       <th className="bg-gray-50 px-3 py-2 text-left font-semibold text-gray-600">Year</th>
@@ -30,9 +30,9 @@ function TableHeaders({ selectedColumns }: { selectedColumns: string[] }) {
       ))}
     </>
   );
-}
+});
 
-function DataRow({
+const DataRow = memo(function DataRow({
   row,
   selectedColumns,
   isHighlighted = false,
@@ -56,17 +56,17 @@ function DataRow({
       ))}
     </tr>
   );
-}
+});
 
 function CountryCard({ country, selectedYear, selectedColumns }: Props) {
   const { name, iso, latestPopulation, years } = country;
   const [expanded, setExpanded] = useState(false);
 
-  const yearData = years.find((yearData) => yearData.year === selectedYear);
+  const yearData = useMemo(() => years.find((yearData) => yearData.year === selectedYear), [years, selectedYear]);
 
-  const toggleExpanded = () => {
+  const toggleExpanded = useCallback(() => {
     setExpanded((prev) => !prev);
-  };
+  }, []);
 
   return (
     <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm" aria-live="polite">
@@ -120,4 +120,4 @@ function CountryCard({ country, selectedYear, selectedColumns }: Props) {
   );
 }
 
-export default CountryCard;
+export default memo(CountryCard);

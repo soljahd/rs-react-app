@@ -1,3 +1,4 @@
+import { memo, useMemo } from 'react';
 import CountryCard from './CountryCard';
 import type { Country } from '../types/dataTypes';
 
@@ -21,23 +22,25 @@ function getCountryPopulationForYear(country: Country, year: number): number | n
 }
 
 function CountryList({ countries, selectedYear, searchQuery, sortBy, sortDirection, selectedColumns }: Props) {
-  const filteredCountries = searchQuery
-    ? countries.filter((country) => isCountryMatchesSearch(country, searchQuery))
-    : [...countries];
+  const filteredCountries = useMemo(() => {
+    return searchQuery ? countries.filter((country) => isCountryMatchesSearch(country, searchQuery)) : [...countries];
+  }, [countries, searchQuery]);
 
-  const sortedCountries = [...filteredCountries].sort((firstCountry, secondCountry) => {
-    if (sortBy === 'name') {
-      return sortDirection === 'asc'
-        ? firstCountry.name.localeCompare(secondCountry.name)
-        : secondCountry.name.localeCompare(firstCountry.name);
-    } else {
-      const firstCountryPopulation = getCountryPopulationForYear(firstCountry, selectedYear) ?? 0;
-      const secondCountryPopulation = getCountryPopulationForYear(secondCountry, selectedYear) ?? 0;
-      return sortDirection === 'asc'
-        ? firstCountryPopulation - secondCountryPopulation
-        : secondCountryPopulation - firstCountryPopulation;
-    }
-  });
+  const sortedCountries = useMemo(() => {
+    return [...filteredCountries].sort((firstCountry, secondCountry) => {
+      if (sortBy === 'name') {
+        return sortDirection === 'asc'
+          ? firstCountry.name.localeCompare(secondCountry.name)
+          : secondCountry.name.localeCompare(firstCountry.name);
+      } else {
+        const firstCountryPopulation = getCountryPopulationForYear(firstCountry, selectedYear) ?? 0;
+        const secondCountryPopulation = getCountryPopulationForYear(secondCountry, selectedYear) ?? 0;
+        return sortDirection === 'asc'
+          ? firstCountryPopulation - secondCountryPopulation
+          : secondCountryPopulation - firstCountryPopulation;
+      }
+    });
+  }, [filteredCountries, sortBy, sortDirection, selectedYear]);
 
   return (
     <div className="flex flex-col gap-4">
@@ -53,4 +56,4 @@ function CountryList({ countries, selectedYear, searchQuery, sortBy, sortDirecti
   );
 }
 
-export default CountryList;
+export default memo(CountryList);

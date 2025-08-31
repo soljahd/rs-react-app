@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo, memo } from 'react';
 import Button from './Button';
 import { COLUMN_LABELS } from '../types/dataTypes';
 
@@ -20,7 +20,7 @@ function ColumnSelectorModal({ allColumns, selectedColumns, onClose, onSave }: P
     );
   };
 
-  const sortedColumns = allColumns.slice().sort();
+  const sortedColumns = useMemo(() => allColumns.slice().sort(), [allColumns]);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-600/50" role="dialog" aria-modal="true">
@@ -66,4 +66,4 @@ function ColumnSelectorModal({ allColumns, selectedColumns, onClose, onSave }: P
   );
 }
 
-export default ColumnSelectorModal;
+export default memo(ColumnSelectorModal);
