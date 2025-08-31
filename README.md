@@ -44,9 +44,17 @@ The following images compare the React DevTools profiler results of the applicat
 ![Unoptimized Component Performance](./public/unoptim.png)
 _Caption: A high number of unnecessary re-renders across the component tree, leading to slower interactions and wasted computational resources._
 
+- First load all cards render: 457.2 ms
+- All cards rerender: 456.6 ms
+- One card rerender: 40.4 ms
+
 **After Optimization:**
 ![Optimized Component Performance](./public/optim.png)
 _Caption: Significantly fewer re-renders. Components now only update when their specific props change, greatly improving runtime efficiency._
+
+- First load all cards render: 505.3 ms
+- All cards rerender: 41.5 ms
+- One card rerender: 22.4 ms
 
 ### Summary of the Changes
 
