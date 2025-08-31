@@ -1,4 +1,4 @@
-import { memo, useMemo, useState, useCallback } from 'react';
+import { memo, useMemo, useState, useCallback, useEffect, useRef } from 'react';
 import Button from './Button';
 import { COLUMN_LABELS } from '../types/dataTypes';
 import type { Country, YearData } from '../types/dataTypes';
@@ -35,22 +35,47 @@ const TableHeaders = memo(function TableHeaders({ selectedColumns }: { selectedC
 const DataRow = memo(function DataRow({
   row,
   selectedColumns,
-  isHighlighted = false,
+  changedFields,
 }: {
   row: YearData | undefined;
   selectedColumns: string[];
-  isHighlighted?: boolean;
+  changedFields: string[];
 }) {
   return (
-    <tr
-      className={`grid grid-cols-[repeat(auto-fit,minmax(120px,1fr))] ${isHighlighted ? 'bg-blue-50' : 'border-b border-gray-100 hover:bg-gray-50'}`}
-    >
-      <td className="truncate px-3 py-2">{row?.year ? row.year : 'N/A'}</td>
-      <td className="truncate px-3 py-2">{formatValue(row?.population)}</td>
-      <td className="truncate px-3 py-2">{formatValue(row?.co2)}</td>
-      <td className="truncate px-3 py-2">{formatValue(row?.co2_per_capita)}</td>
+    <tr className="grid grid-cols-[repeat(auto-fit,minmax(120px,1fr))] border-b border-gray-100 hover:bg-gray-50">
+      <td className="truncate px-3 py-2">{row?.year ?? 'N/A'}</td>
+
+      <td
+        className={`truncate px-3 py-2 transition-colors duration-700 ${
+          changedFields.includes('population') ? 'bg-yellow-100' : ''
+        }`}
+      >
+        {formatValue(row?.population)}
+      </td>
+
+      <td
+        className={`truncate px-3 py-2 transition-colors duration-700 ${
+          changedFields.includes('co2') ? 'bg-yellow-100' : ''
+        }`}
+      >
+        {formatValue(row?.co2)}
+      </td>
+
+      <td
+        className={`truncate px-3 py-2 transition-colors duration-700 ${
+          changedFields.includes('co2_per_capita') ? 'bg-yellow-100' : ''
+        }`}
+      >
+        {formatValue(row?.co2_per_capita)}
+      </td>
+
       {selectedColumns.map((col) => (
-        <td key={`${row?.year ? row.year.toString() : 'row'}-${col}`} className="truncate px-3 py-2">
+        <td
+          key={`${row?.year?.toString() ?? 'row'}-${col}`}
+          className={`truncate px-3 py-2 transition-colors duration-700 ${
+            changedFields.includes(col) ? 'bg-yellow-100' : ''
+          }`}
+        >
           {formatValue(row?.[col as keyof YearData])}
         </td>
       ))}
@@ -62,11 +87,51 @@ function CountryCard({ country, selectedYear, selectedColumns }: Props) {
   const { name, iso, latestPopulation, years } = country;
   const [expanded, setExpanded] = useState(false);
 
-  const yearData = useMemo(() => years.find((yearData) => yearData.year === selectedYear), [years, selectedYear]);
+  const prevYearDataRef = useRef<YearData | undefined>(undefined);
+  const [changedFields, setChangedFields] = useState<string[]>([]);
+
+  const yearData = useMemo(() => years.find((y) => y.year === selectedYear), [years, selectedYear]);
 
   const toggleExpanded = useCallback(() => {
     setExpanded((prev) => !prev);
   }, []);
+
+  useEffect(() => {
+    const prev = prevYearDataRef.current;
+    const current = yearData;
+
+    if (current && prev) {
+      const diffs: string[] = [];
+      const fieldsToCheck = ['population', 'co2', 'co2_per_capita', ...selectedColumns];
+
+      fieldsToCheck.forEach((field) => {
+        const prevVal = formatValue(prev[field as keyof YearData]);
+        const currVal = formatValue(current[field as keyof YearData]);
+
+        if (prevVal !== currVal) {
+          diffs.push(field);
+        }
+      });
+
+      setChangedFields(diffs);
+
+      const timeout = setTimeout(() => {
+        setChangedFields([]);
+      }, 1000);
+
+      return () => {
+        clearTimeout(timeout);
+      };
+    } else {
+      setChangedFields([]);
+    }
+
+    prevYearDataRef.current = current;
+  }, [yearData, selectedColumns]);
+
+  useEffect(() => {
+    prevYearDataRef.current = yearData;
+  }, [yearData]);
 
   return (
     <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm" aria-live="polite">
@@ -96,7 +161,9 @@ function CountryCard({ country, selectedYear, selectedColumns }: Props) {
               <TableHeaders selectedColumns={selectedColumns} />
             </tr>
           </thead>
-          <tbody>{<DataRow row={yearData} selectedColumns={selectedColumns} isHighlighted={true} />}</tbody>
+          <tbody>
+            <DataRow row={yearData} selectedColumns={selectedColumns} changedFields={changedFields} />
+          </tbody>
         </table>
       </div>
 
@@ -110,7 +177,7 @@ function CountryCard({ country, selectedYear, selectedColumns }: Props) {
             </thead>
             <tbody>
               {years.map((row) => (
-                <DataRow key={row.year} row={row} selectedColumns={selectedColumns} />
+                <DataRow key={row.year} row={row} selectedColumns={selectedColumns} changedFields={[]} />
               ))}
             </tbody>
           </table>
